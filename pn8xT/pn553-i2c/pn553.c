@@ -563,7 +563,7 @@ long  pn544_dev_ioctl(struct file *filp, unsigned int cmd,
                        else{
                            pr_info(" invalid nfc service pid....signalling failed%s   ---- %ld", __func__, pn544_dev->nfc_service_pid);
                        }
-                      if ((pn544_dev->nfc_ven_enabled == false) && !(pn544_dev->secure_timer_cnt)) {
+                      if (!(pn544_dev->secure_timer_cnt)) {
                           gpio_set_value(pn544_dev->ese_pwr_gpio, 0);
                           svdd_sync_onoff(pn544_dev->nfc_service_pid, P61_STATE_SPI_SVDD_SYNC_END);
                        }
