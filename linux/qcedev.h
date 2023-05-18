@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
 /*
  * Copyright (c) 2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  */
 
 #ifndef _QCEDEV__H
@@ -8,7 +9,6 @@
 
 #include <linux/types.h>
 #include <linux/ioctl.h>
-#include "fips_status.h"
 
 #define QCEDEV_MAX_SHA_BLOCK_SIZE	64
 #define QCEDEV_MAX_BEARER	31
