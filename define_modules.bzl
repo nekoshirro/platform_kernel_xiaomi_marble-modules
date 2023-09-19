@@ -15,10 +15,10 @@ def define_modules(target, variant):
         name = "{}_stm_nfc_i2c".format(tv),
         out = "stm_nfc_i2c.ko",
         srcs = ["nfc/st21nfc.c",
-                "nfc/st21nfc.h",
-                "include/uapi/linux/nfc/st_uapi.h"
+                "nfc/st21nfc.h"
                ],
-        includes = [".", "linux", "nfc"],
+        hdrs = ["include/uapi/linux/nfc/st_uapi.h"],
+        includes = [".", "linux", "nfc", "include/uapi/linux/nfc"],
         copts = copts,
         deps = deps,
         kernel_build = "//msm-kernel:{}".format(tv),
