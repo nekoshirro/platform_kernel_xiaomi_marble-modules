@@ -1267,8 +1267,12 @@ static const struct acpi_gpio_mapping acpi_st21nfc_gpios[] = {
 	{ "clkreq-gpios", &clkreq_gpios, 1 },
 };
 
+#if (KERNEL_VERSION(6, 3, 0) <= LINUX_VERSION_CODE)
+static int st21nfc_probe(struct i2c_client *client)
+#else
 static int st21nfc_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+#endif
 {
 	int ret;
 	struct st21nfc_device *st21nfc_dev;
