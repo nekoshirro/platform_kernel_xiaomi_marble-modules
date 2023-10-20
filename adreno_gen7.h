@@ -12,11 +12,6 @@
 #include "gen7_reg.h"
 #include "adreno_gen7_gmu.h"
 
-#define PIPE_NONE 0
-#define PIPE_BR 1
-#define PIPE_BV 2
-#define PIPE_LPAC 3
-
 /* Forward struct declaration */
 struct gen7_snapshot_block_list;
 
