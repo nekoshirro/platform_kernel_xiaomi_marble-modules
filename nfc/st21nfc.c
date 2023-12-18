@@ -185,6 +185,35 @@ struct st21nfc_device {
 };
 
 /*
+ * Routine to enable clock.
+ * this routine can be extended to select from multiple
+ * sources based on clk_src_name.
+ */
+static int st21nfc_clock_select(struct st21nfc_device *st21nfc_dev)
+{
+	int ret = 0;
+
+	st21nfc_dev->s_clk = clk_get(&st21nfc_dev->client->dev, "nfc_ref_clk");
+
+	/* if NULL we assume external crystal and dont fail */
+	if (IS_ERR_OR_NULL(st21nfc_dev->s_clk))
+		return 0;
+
+	if (st21nfc_dev->clk_run == false) {
+		ret = clk_prepare_enable(st21nfc_dev->s_clk);
+
+		if (ret)
+			goto err_clk;
+
+		st21nfc_dev->clk_run = true;
+	}
+	return ret;
+
+err_clk:
+	return -EINVAL;
+}
+
+/*
  * Routine to disable clocks
  */
 static int st21nfc_clock_deselect(struct st21nfc_device *st21nfc_dev)
@@ -780,6 +809,9 @@ static long st21nfc_dev_ioctl(struct file *filp, unsigned int cmd,
 	case ST21NFC_SET_POLARITY_HIGH:
 	case ST21NFC_LEGACY_SET_POLARITY_HIGH:
 		pr_info(" ### ST21NFC_SET_POLARITY_HIGH ###\n");
+                ret = st21nfc_clock_select(st21nfc_dev);
+                if (ret < 0)
+                      pr_err("%s : st21nfc_clock_select failed\n", __func__);
 		st21nfc_loc_set_polaritymode(st21nfc_dev, IRQF_TRIGGER_HIGH);
 		break;
 
