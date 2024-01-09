@@ -937,6 +937,17 @@ static long st21nfc_dev_ioctl(struct file *filp, unsigned int cmd,
 		if (enable_debug_log)
 			pr_debug("%s use ESE %d : %d\n", __func__, ret, tmp);
 		break;
+        case ST21NFC_CLK_DISABLE_UNPREPARE:
+                ret = st21nfc_clock_deselect(st21nfc_dev);
+                if (ret < 0) {
+                        pr_err("%s : st21nfc_clock_deselect failed\n", __func__);
+               }
+               if (st21nfc_dev->irq_wakeup_source) {
+                        wakeup_source_unregister(st21nfc_dev->irq_wakeup_source);
+                        st21nfc_dev->irq_wakeup_source = NULL;
+               }
+               break;
+
 #ifdef NFC_SECURE_PERIPHERAL_ENABLED
 	case NFC_SECURE_ZONE:
 		ret = nfc_dynamic_protection_ioctl(st21nfc_dev, arg);
