@@ -4,6 +4,7 @@ include $(CLEAR_VARS)
 
 
 ifeq ($(TARGET_ENABLE_PERIPHERAL_CONTROL), true)
+  LOCAL_CFLAGS := -DNFC_SECURE_PERIPHERAL_ENABLED
   KBUILD_OPTIONS += KBUILD_EXTRA_SYMBOLS=$(PWD)/$(call intermediates-dir-for,DLKM,sec-module-symvers)/Module.symvers
   ifeq ($(TARGET_KERNEL_DLKM_SECURE_MSM_OVERRIDE), true)
     LOCAL_REQUIRED_MODULES := sec-module-symvers
