@@ -15,7 +15,9 @@
 #define ST54SPI_CB_RESET_START 1
 #define ST54SPI_CB_ESE_NOT_USED 2
 #define ST54SPI_CB_ESE_USED 3
+#if 0
 #define ST21NFC_CLK_DISABLE_UNPREPARE _IO(ST21NFC_MAGIC, 0x0A)
+#endif
 void st21nfc_register_st54spi_cb(void (*cb)(int, void *), void *data);
 void st21nfc_unregister_st54spi_cb(void);
 

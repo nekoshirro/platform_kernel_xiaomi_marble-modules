@@ -184,6 +184,7 @@ struct st21nfc_device {
 	bool secure_zone;
 };
 
+#if 0
 /*
  * Routine to enable clock.
  * this routine can be extended to select from multiple
@@ -212,6 +213,7 @@ static int st21nfc_clock_select(struct st21nfc_device *st21nfc_dev)
 err_clk:
 	return -EINVAL;
 }
+#endif
 
 /*
  * Routine to disable clocks
@@ -809,9 +811,11 @@ static long st21nfc_dev_ioctl(struct file *filp, unsigned int cmd,
 	case ST21NFC_SET_POLARITY_HIGH:
 	case ST21NFC_LEGACY_SET_POLARITY_HIGH:
 		pr_info(" ### ST21NFC_SET_POLARITY_HIGH ###\n");
-                ret = st21nfc_clock_select(st21nfc_dev);
+#if 0
+		ret = st21nfc_clock_select(st21nfc_dev);
                 if (ret < 0)
                       pr_err("%s : st21nfc_clock_select failed\n", __func__);
+#endif
 		st21nfc_loc_set_polaritymode(st21nfc_dev, IRQF_TRIGGER_HIGH);
 		break;
 
@@ -937,7 +941,8 @@ static long st21nfc_dev_ioctl(struct file *filp, unsigned int cmd,
 		if (enable_debug_log)
 			pr_debug("%s use ESE %d : %d\n", __func__, ret, tmp);
 		break;
-        case ST21NFC_CLK_DISABLE_UNPREPARE:
+#if 0
+	case ST21NFC_CLK_DISABLE_UNPREPARE:
                 ret = st21nfc_clock_deselect(st21nfc_dev);
                 if (ret < 0) {
                         pr_err("%s : st21nfc_clock_deselect failed\n", __func__);
@@ -947,6 +952,7 @@ static long st21nfc_dev_ioctl(struct file *filp, unsigned int cmd,
                         st21nfc_dev->irq_wakeup_source = NULL;
                }
                break;
+#endif
 
 #ifdef NFC_SECURE_PERIPHERAL_ENABLED
 	case NFC_SECURE_ZONE:
