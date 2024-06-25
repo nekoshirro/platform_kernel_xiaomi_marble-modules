@@ -5,6 +5,7 @@ HDCP_PATH = "hdcp"
 QCEDEV_PATH = "crypto-qti"
 QRNG_PATH = "qrng"
 SMMU_PROXY_PATH = "smmu-proxy"
+QCEDEV_FE_PATH="qcedev_fe"
 
 # This dictionary holds all the securemsm-kernel  modules included by calling register_securemsm_module
 securemsm_modules = {}
@@ -66,7 +67,9 @@ register_securemsm_module(
     path = SMCINVOKE_PATH,
     default_srcs = [
         "IQSEEComCompat.h",
+        "smci_qseecomcompat.h",
         "IQSEEComCompatAppLoader.h",
+        "smci_qseecomcompatapploader.h",
     ],
     config_srcs = {
         "CONFIG_QCOM_SI_CORE": {
@@ -102,16 +105,22 @@ register_securemsm_module(
         "hdcp_qseecom.h",
         "hdcp_main.c",
         "smcinvoke_object.h",
+        "smci_object.h",
         "hdcp_main.h",
         "hdcp_smcinvoke.c",
         "hdcp_smcinvoke.h",
         "CAppClient.h",
         "CAppLoader.h",
         "IAppClient.h",
+        "smci_appclient.h",
         "IAppController.h",
+        "smci_appcontroller.h",
         "IAppLoader.h",
+        "smci_apploader.h",
         "IClientEnv.h",
+        "smci_clientenv.h",
         "IOpener.h",
+        "smci_opener.h",
         "hdcp1.h",
         "hdcp1_ops.h",
         "hdcp2p2.h",
@@ -162,4 +171,13 @@ register_securemsm_module(
     path = SMMU_PROXY_PATH,
     srcs = ["qti-smmu-proxy-pvm.c", "qti-smmu-proxy-common.c"],
     deps = ["%b_smcinvoke_dlkm", ":smmu_proxy_headers"],
+)
+
+register_securemsm_module(
+    name = "qcedev_fe_dlkm",
+    path = QCEDEV_FE_PATH,
+    srcs = [
+                "qcedev_fe.c",
+                "qcedev_smmu.c"],
+    deps = [":qcedev_fe_local_headers"],
 )
