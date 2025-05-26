@@ -3359,6 +3359,7 @@ static int qseecom_prepare_unload_app(struct qseecom_dev_handle *data)
 				data->client.attach, data->client.dmabuf);
 		}
 		data->released = true;
+		__qseecom_free_tzbuf(&data->sglistinfo_shm);
 		return 0;
 	}
 
@@ -9909,8 +9910,11 @@ exit_unregister_bridge:
 	return rc;
 }
 
-
+#if KERNEL_VERSION(6, 10, 0) > LINUX_VERSION_CODE
 static int qseecom_remove(struct platform_device *pdev)
+#else
+static void qseecom_remove(struct platform_device *pdev)
+#endif
 {
 	struct qseecom_registered_kclient_list *kclient = NULL;
 	struct qseecom_registered_kclient_list *kclient_tmp = NULL;
@@ -9954,7 +9958,9 @@ static int qseecom_remove(struct platform_device *pdev)
 	qseecom_deinit_clk();
 	qseecom_release_ce_data();
 	qseecom_deinit_dev();
+#if KERNEL_VERSION(6, 10, 0) > LINUX_VERSION_CODE
 	return ret;
+#endif
 }
 
 static int qseecom_suspend(struct platform_device *pdev, pm_message_t state)
