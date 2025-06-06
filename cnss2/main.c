@@ -845,6 +845,50 @@ void cnss_remove_pm_qos(struct device *dev)
 }
 EXPORT_SYMBOL(cnss_remove_pm_qos);
 
+int cnss_set_host_param(struct device *dev,
+			struct cnss_wlan_host_param *param)
+{
+	struct cnss_plat_data *plat_priv;
+	struct cnss_wlan_host_param *data;
+
+	if (!dev) {
+		cnss_pr_err("Invalid dev pointer\n");
+		return -EINVAL;
+	}
+
+	plat_priv = cnss_bus_dev_to_plat_priv(dev);
+	if (!plat_priv)
+		return -ENODEV;
+
+	if (!param) {
+		cnss_pr_err("Invalid host_param pointer\n");
+		return -EINVAL;
+	}
+
+	data = kmalloc(sizeof(*data), GFP_KERNEL);
+	if (!data) {
+		cnss_pr_err("Failed to allocate memory for host_param\n");
+		return -ENOMEM;
+	}
+
+	data->chip_name = kstrdup(param->chip_name, GFP_KERNEL);
+	if (!data->chip_name) {
+		kfree(data);
+		cnss_pr_err("Failed to allocate memory for chip_name\n");
+		return -ENOMEM;
+	}
+
+	if (plat_priv->host_param) {
+		kfree(plat_priv->host_param->chip_name);
+		kfree(plat_priv->host_param);
+	}
+
+	plat_priv->host_param = data;
+
+	return 0;
+}
+EXPORT_SYMBOL(cnss_set_host_param);
+
 int cnss_wlan_enable(struct device *dev,
 		     struct cnss_wlan_enable_cfg *config,
 		     enum cnss_driver_mode mode,
@@ -1936,6 +1980,15 @@ static void cnss_put_resources(struct cnss_plat_data *plat_priv)
 	}
 	cnss_put_clk(plat_priv);
 	cnss_put_vreg_type(plat_priv, CNSS_VREG_PRIM);
+}
+
+static void cnss_host_param_deinit(struct cnss_plat_data *plat_priv)
+{
+	if (plat_priv && plat_priv->host_param) {
+		if (plat_priv->host_param->chip_name)
+			kfree(plat_priv->host_param->chip_name);
+		kfree(plat_priv->host_param);
+	}
 }
 
 #if IS_ENABLED(CONFIG_ESOC) && IS_ENABLED(CONFIG_MSM_SUBSYSTEM_RESTART)
@@ -7198,6 +7251,7 @@ static void cnss_remove(struct platform_device *plat_dev)
 	cnss_unregister_esoc(plat_priv);
 	cnss_put_resources(plat_priv);
 	cnss_aop_interface_deinit(plat_priv);
+	cnss_host_param_deinit(plat_priv);
 	cnss_deinitialize_mem_pool();
 	platform_set_drvdata(plat_dev, NULL);
 	cnss_clear_plat_priv(plat_priv);

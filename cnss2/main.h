@@ -763,6 +763,7 @@ struct cnss_plat_data {
 	struct nvmem_cell *nvmem_cell_wlan_seq_debug;
 	struct nvmem_cell *nvmem_cell_wlan_seq_count;
 #endif
+	struct cnss_wlan_host_param *host_param;
 };
 
 #if IS_ENABLED(CONFIG_ARCH_QCOM)
