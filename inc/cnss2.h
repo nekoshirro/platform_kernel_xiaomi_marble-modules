@@ -359,5 +359,6 @@ extern void cnss_get_cpumask_for_wlan_rx_interrupts(struct device *dev,
 extern void cnss_get_cpumask_for_wlan_tx_comp_interrupts(struct device *dev,
 							 unsigned int *cpumask);
 extern int cnss_set_cxpc(struct device *dev, enum cxpc_status arg);
+extern int cnss_pci_get_iova_info(struct device *dev, u64 *addr, u64 *size);
 
 #endif /* _NET_CNSS2_H */

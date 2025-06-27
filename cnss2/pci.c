@@ -6166,6 +6166,15 @@ int cnss_pci_get_iova(struct cnss_pci_data *pci_priv, u64 *addr, u64 *size)
 	return 0;
 }
 
+int cnss_pci_get_iova_info(struct device *dev, u64 *addr, u64 *size)
+{
+	struct pci_dev *pci_dev = to_pci_dev(dev);
+	struct cnss_pci_data *pci_priv = cnss_get_pci_priv(pci_dev);
+
+	return cnss_pci_get_iova(pci_priv, addr, size);
+}
+EXPORT_SYMBOL(cnss_pci_get_iova_info);
+
 int cnss_pci_get_iova_ipa(struct cnss_pci_data *pci_priv, u64 *addr, u64 *size)
 {
 	if (!pci_priv)
