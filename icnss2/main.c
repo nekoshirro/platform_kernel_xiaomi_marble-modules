@@ -5187,6 +5187,14 @@ void icnss_allow_l1(struct device *dev)
 }
 EXPORT_SYMBOL(icnss_allow_l1);
 
+int icnss_get_iova_info(struct device *dev, u64 *addr, u64 *size)
+{
+	struct icnss_priv *priv = dev_get_drvdata(dev);
+
+	return icnss_get_iova(priv, addr, size);
+}
+EXPORT_SYMBOL(icnss_get_iova_info);
+
 void icnss_allow_recursive_recovery(struct device *dev)
 {
 	struct icnss_priv *priv = dev_get_drvdata(dev);
