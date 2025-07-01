@@ -14,7 +14,6 @@
 #include <linux/of_gpio.h>
 #include <linux/vmalloc.h>
 #include <linux/suspend.h>
-#include <linux/version.h>
 #include <linux/sched.h>
 #include <linux/nmi.h>
 #include <linux/stacktrace.h>
@@ -966,7 +965,7 @@ __cnss_del_rddm_timer(struct cnss_pci_data *pci_priv,
 {
 	int ret;
 
-	ret = del_timer(&pci_priv->dev_rddm_timer);
+	ret = cnss_timer_delete(&pci_priv->dev_rddm_timer);
 	cnss_pr_dbg("Delete RDDM timer @%s(%d), ret %d\n",
 		    func, line, ret);
 	return ret;
@@ -3034,7 +3033,7 @@ retry:
 	mod_timer(&pci_priv->boot_debug_timer,
 		  jiffies + msecs_to_jiffies(BOOT_DEBUG_TIMEOUT_MS));
 	ret = cnss_pci_set_mhi_state(pci_priv, CNSS_MHI_POWER_ON);
-	del_timer_sync(&pci_priv->boot_debug_timer);
+	cnss_timer_delete_sync(&pci_priv->boot_debug_timer);
 	if (ret == 0)
 		cnss_wlan_adsp_pc_enable(pci_priv, false);
 
@@ -4315,7 +4314,7 @@ static void cnss_wlan_reg_driver_work(struct work_struct *work)
 			return;
 		}
 
-		del_timer(&plat_priv->fw_boot_timer);
+		cnss_timer_delete(&plat_priv->fw_boot_timer);
 		if (test_bit(CNSS_IN_COLD_BOOT_CAL, &plat_priv->driver_state) &&
 		    !test_bit(CNSS_IN_REBOOT, &plat_priv->driver_state) &&
 		    !test_bit(CNSS_DRIVER_RECOVERY, &plat_priv->driver_state)) {
@@ -7816,7 +7815,7 @@ static int cnss_pci_handle_mhi_sys_err(struct cnss_pci_data *pci_priv)
 
 	cnss_ignore_qmi_failure(true);
 	set_bit(CNSS_DEV_ERR_NOTIFY, &plat_priv->driver_state);
-	del_timer(&plat_priv->fw_boot_timer);
+	cnss_timer_delete(&plat_priv->fw_boot_timer);
 	reinit_completion(&pci_priv->wake_event_complete);
 	cnss_start_rddm_timer(pci_priv);
 	cnss_pci_update_status(pci_priv, CNSS_FW_DOWN);
@@ -7859,7 +7858,7 @@ static void cnss_mhi_notify_status(struct mhi_controller *mhi_ctrl,
 	case MHI_CB_FATAL_ERROR:
 		cnss_ignore_qmi_failure(true);
 		set_bit(CNSS_DEV_ERR_NOTIFY, &plat_priv->driver_state);
-		del_timer(&plat_priv->fw_boot_timer);
+		cnss_timer_delete(&plat_priv->fw_boot_timer);
 		cnss_pci_update_status(pci_priv, CNSS_FW_DOWN);
 		cnss_reason = CNSS_REASON_FATAL_ERROR;
 		break;
@@ -7869,7 +7868,7 @@ static void cnss_mhi_notify_status(struct mhi_controller *mhi_ctrl,
 	case MHI_CB_EE_RDDM:
 		cnss_ignore_qmi_failure(true);
 		set_bit(CNSS_DEV_ERR_NOTIFY, &plat_priv->driver_state);
-		del_timer(&plat_priv->fw_boot_timer);
+		cnss_timer_delete(&plat_priv->fw_boot_timer);
 		cnss_del_rddm_timer(pci_priv);
 		cnss_pci_update_status(pci_priv, CNSS_FW_DOWN);
 		cnss_reason = CNSS_REASON_RDDM;
@@ -8852,7 +8851,7 @@ static void cnss_pci_remove(struct pci_dev *pci_dev)
 	case COLOGNE_DEVICE_ID:
 	case FIG_DEVICE_ID:
 		cnss_pci_wake_gpio_deinit(pci_priv);
-		del_timer(&pci_priv->boot_debug_timer);
+		cnss_timer_delete(&pci_priv->boot_debug_timer);
 		cnss_del_rddm_timer(pci_priv);
 		break;
 	default:

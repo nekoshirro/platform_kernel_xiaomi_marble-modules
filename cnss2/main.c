@@ -1377,7 +1377,7 @@ static int cnss_fw_ready_hdlr(struct cnss_plat_data *plat_priv)
 	}
 
 	cnss_pr_dbg("Processing FW Init Done..\n");
-	del_timer(&plat_priv->fw_boot_timer);
+	cnss_timer_delete(&plat_priv->fw_boot_timer);
 	set_bit(CNSS_FW_READY, &plat_priv->driver_state);
 	clear_bit(CNSS_DEV_ERR_NOTIFY, &plat_priv->driver_state);
 
@@ -1735,7 +1735,7 @@ int cnss_idle_restart(struct device *dev)
 
 	if (test_bit(CNSS_IN_REBOOT, &plat_priv->driver_state)) {
 		cnss_pr_dbg("Reboot or shutdown is in progress, ignore idle restart\n");
-		del_timer(&plat_priv->fw_boot_timer);
+		cnss_timer_delete(&plat_priv->fw_boot_timer);
 		ret = -EINVAL;
 		goto out;
 	}
@@ -5759,7 +5759,7 @@ static ssize_t shutdown_store(struct device *dev,
 	if (plat_priv) {
 		set_bit(CNSS_IN_REBOOT, &plat_priv->driver_state);
 		cnss_bus_update_status(plat_priv, CNSS_SYS_REBOOT);
-		del_timer(&plat_priv->fw_boot_timer);
+		cnss_timer_delete(&plat_priv->fw_boot_timer);
 		complete_all(&plat_priv->power_up_complete);
 		complete_all(&plat_priv->cal_complete);
 		complete_all(&plat_priv->xdump_helper.wl_over_bt_complete);
@@ -6158,7 +6158,7 @@ static int cnss_reboot_notifier(struct notifier_block *nb,
 
 	set_bit(CNSS_IN_REBOOT, &plat_priv->driver_state);
 	cnss_bus_update_status(plat_priv, CNSS_SYS_REBOOT);
-	del_timer(&plat_priv->fw_boot_timer);
+	cnss_timer_delete(&plat_priv->fw_boot_timer);
 	complete_all(&plat_priv->power_up_complete);
 	complete_all(&plat_priv->cal_complete);
 	complete_all(&plat_priv->xdump_helper.wl_over_bt_complete);
@@ -6418,7 +6418,7 @@ static void cnss_misc_deinit(struct cnss_plat_data *plat_priv)
 	complete_all(&plat_priv->daemon_connected);
 	device_init_wakeup(&plat_priv->plat_dev->dev, false);
 	unregister_reboot_notifier(&plat_priv->reboot_nb);
-	del_timer(&plat_priv->fw_boot_timer);
+	cnss_timer_delete(&plat_priv->fw_boot_timer);
 	wakeup_source_unregister(plat_priv->recovery_ws);
 	cnss_deinit_direct_cx_host_sol_gpio(plat_priv);
 	cnss_deinit_sol_gpio(plat_priv);
