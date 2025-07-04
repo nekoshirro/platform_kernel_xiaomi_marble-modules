@@ -188,6 +188,10 @@ struct cnss_shadow_reg_v3_cfg {
 	u32 addr;
 };
 
+struct cnss_wlan_host_param {
+	const char *chip_name;
+};
+
 struct cnss_wlan_enable_cfg {
 	u32 num_ce_tgt_cfg;
 	struct cnss_ce_tgt_pipe_cfg *ce_tgt_cfg;
@@ -302,6 +306,8 @@ extern bool cnss_is_one_msi(struct device *dev);
 extern void cnss_get_msi_address(struct device *dev, uint32_t *msi_addr_low,
 				 uint32_t *msi_addr_high);
 extern int cnss_wlan_hw_enable(void);
+extern int cnss_set_host_param(struct device *dev,
+			       struct cnss_wlan_host_param *param);
 extern int cnss_wlan_enable(struct device *dev,
 			    struct cnss_wlan_enable_cfg *config,
 			    enum cnss_driver_mode mode,
