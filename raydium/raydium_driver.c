@@ -1004,7 +1004,7 @@ static int raydium_touch_report(unsigned char *p_u8_buf,
 
 	return 0;
 }
-#elif
+#else
 static int raydium_touch_report(unsigned char *p_u8_buf,
 				unsigned char u8_points_amount)
 {
@@ -1236,7 +1236,7 @@ reset_error:
 #endif
 	return i32_ret;
 }
-#elif
+#else
 int raydium_read_touchdata(unsigned char *p_u8_tp_status,  unsigned char *p_u8_buf)
 {
 	int i32_ret = 0;
