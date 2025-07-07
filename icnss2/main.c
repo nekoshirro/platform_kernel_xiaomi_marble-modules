@@ -5824,6 +5824,7 @@ static inline void icnss_pci_set_suspended(struct icnss_priv *priv, int val)
 }
 #endif
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 5, 0))
 static int icnss_dt_parse_iommu_address(struct device *dev, u32 *addr_win)
 {
 	const u32 *maps;
@@ -5869,6 +5870,13 @@ static int icnss_dt_parse_iommu_address(struct device *dev, u32 *addr_win)
 
 	return (addr_win[0] && addr_win[1]) ? 0 : -EINVAL;
 }
+#else
+static inline int icnss_dt_parse_iommu_address(struct device *dev, u32 *addr_win)
+{
+	return -EINVAL;
+}
+#endif
+
 
 static int icnss_smmu_dt_parse(struct icnss_priv *priv)
 {
