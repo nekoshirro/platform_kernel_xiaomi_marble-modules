@@ -4723,6 +4723,11 @@ static int cnss_pci_suspend(struct device *dev)
 		/* pcie link will be suspend by pcie PM */
 		goto out;
 
+	if (test_bit(CNSS_IN_COLD_BOOT_CAL, &plat_priv->driver_state)) {
+		ret = -EAGAIN;
+		goto out;
+	}
+
 	/* No mhi state bit set if only finish pcie enumeration,
 	 * so test_bit is not applicable to check if it is INIT state.
 	 */
