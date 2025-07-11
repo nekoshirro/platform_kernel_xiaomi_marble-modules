@@ -802,9 +802,10 @@ unsigned char raydium_disable_i2c_deglitch(void)
 			break;
 	}
 
-	if (u8_retry <= 0)
+	if (u8_retry <= 0) {
 		LOGD(LOG_ERR, "[touch]%s: handle_ic_read I2C NG!\r\n", __func__);
 		return ERROR;
+	}
 
 	u32_buf = 0x03;
 	if (handle_i2c_pda_write(g_raydium_ts->client, RAYDIUM_REG_GPIO_DEGLITCH,
