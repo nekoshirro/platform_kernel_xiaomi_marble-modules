@@ -996,11 +996,6 @@ static void cnss_mhi_debug_reg_dump(struct cnss_pci_data *pci_priv)
 	mhi_debug_reg_dump(pci_priv->mhi_ctrl);
 }
 
-static void cnss_mhi_dump_sfr(struct cnss_pci_data *pci_priv)
-{
-	mhi_dump_sfr(pci_priv->mhi_ctrl);
-}
-
 static bool cnss_mhi_scan_rddm_cookie(struct cnss_pci_data *pci_priv,
 				      u32 cookie)
 {
@@ -1069,10 +1064,6 @@ static void cnss_mhi_debug_reg_dump(struct cnss_pci_data *pci_priv)
 {
 }
 
-static void cnss_mhi_dump_sfr(struct cnss_pci_data *pci_priv)
-{
-}
-
 static bool cnss_mhi_scan_rddm_cookie(struct cnss_pci_data *pci_priv,
 				      u32 cookie)
 {
@@ -1127,6 +1118,130 @@ void cnss_mhi_controller_set_base(struct cnss_pci_data *pci_priv,
 {
 }
 #endif /* CONFIG_MHI_BUS_MISC */
+
+static void cnss_mhi_process_sfr(struct image_info *rddm_image,
+				 struct file_info *info)
+{
+	struct mhi_buf *mhi_buf = rddm_image->mhi_buf;
+	u8 *sfr_buf, *file_offset = info->file_offset;
+	u32 file_size = info->file_size;
+	u32 rem_seg_len = info->rem_seg_len;
+	u32 seg_idx = info->seg_idx;
+
+	sfr_buf = kzalloc(file_size + 1, GFP_KERNEL);
+	if (!sfr_buf)
+		return;
+
+	while (file_size) {
+		/* file offset starting from seg base */
+		if (!rem_seg_len) {
+			file_offset = mhi_buf[seg_idx].buf;
+			if (file_size > mhi_buf[seg_idx].len)
+				rem_seg_len = mhi_buf[seg_idx].len;
+			else
+				rem_seg_len = file_size;
+		}
+
+		if (file_size <= rem_seg_len) {
+			memcpy(sfr_buf, file_offset, file_size);
+			break;
+		}
+
+		memcpy(sfr_buf, file_offset, rem_seg_len);
+		sfr_buf += rem_seg_len;
+		file_size -= rem_seg_len;
+		rem_seg_len = 0;
+		seg_idx++;
+		if (seg_idx == rddm_image->entries) {
+			cnss_pr_err("invalid size for SFR file\n");
+			goto err;
+		}
+	}
+	sfr_buf[info->file_size] = '\0';
+
+	/* force sfr string to log in kernel msg */
+	cnss_pr_err("%s\n", sfr_buf);
+err:
+	kfree(sfr_buf);
+}
+
+static int cnss_mhi_find_next_file_offset(struct image_info *rddm_image,
+					  struct file_info *info,
+					  struct rddm_table_info *table_info)
+{
+	struct mhi_buf *mhi_buf = rddm_image->mhi_buf;
+
+	if (info->rem_seg_len >= table_info->size) {
+		info->file_offset += table_info->size;
+		info->rem_seg_len -= table_info->size;
+		return 0;
+	}
+
+	info->file_size = table_info->size - info->rem_seg_len;
+	info->rem_seg_len = 0;
+	/* iterate over segments until eof is reached */
+	while (info->file_size) {
+		info->seg_idx++;
+		if (info->seg_idx == rddm_image->entries) {
+			cnss_pr_err("invalid size for file %s\n",
+				    table_info->file_name);
+			return -EINVAL;
+		}
+		if (info->file_size > mhi_buf[info->seg_idx].len) {
+			info->file_size -= mhi_buf[info->seg_idx].len;
+		} else {
+			info->file_offset = mhi_buf[info->seg_idx].buf +
+				info->file_size;
+			info->rem_seg_len = mhi_buf[info->seg_idx].len -
+				info->file_size;
+			info->file_size = 0;
+		}
+	}
+
+	return 0;
+}
+
+static void cnss_mhi_dump_sfr(struct cnss_pci_data *pci_priv)
+{
+	struct image_info *rddm_image = pci_priv->mhi_ctrl->rddm_image;
+	struct mhi_buf *mhi_buf = rddm_image->mhi_buf;
+	struct rddm_header *rddm_header =
+		(struct rddm_header *)mhi_buf->buf;
+	struct rddm_table_info *table_info;
+	struct file_info info;
+	u32 table_size, n;
+
+	memset(&info, 0, sizeof(info));
+
+	if (rddm_header->header_size > sizeof(*rddm_header) ||
+	    rddm_header->header_size < 8) {
+		cnss_pr_err("invalid reported header size %u\n",
+			    rddm_header->header_size);
+		return;
+	}
+
+	table_size = (rddm_header->header_size - 8) / sizeof(*table_info);
+	if (!table_size) {
+		cnss_pr_err("invalid rddm table size %u\n", table_size);
+		return;
+	}
+
+	info.file_offset = (u8 *)rddm_header + rddm_header->header_size;
+	info.rem_seg_len = mhi_buf[0].len - rddm_header->header_size;
+	for (n = 0; n < table_size; n++) {
+		table_info = &rddm_header->table_info[n];
+
+		if (!strcmp(table_info->file_name, "Q6-SFR.bin")) {
+			    info.file_size = table_info->size;
+			    cnss_mhi_process_sfr(rddm_image, &info);
+			return;
+		}
+
+		if (cnss_mhi_find_next_file_offset(rddm_image, &info,
+						   table_info))
+			return;
+	}
+}
 
 void cnss_pci_controller_set_base(struct cnss_pci_data *pci_priv)
 {
