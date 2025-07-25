@@ -7988,78 +7988,47 @@ static void cnss_mhi_write_reg(struct mhi_controller *mhi_ctrl,
 	writel_relaxed(val, addr);
 }
 
-#if IS_ENABLED(CONFIG_MHI_BUS_MISC)
 /**
- * __cnss_get_mhi_soc_info - Get SoC info before registering mhi controller
- * @mhi_ctrl: MHI controller
+ * cnss_get_soc_info_pre_mhi - Get SoC info before registering mhi controller
+ * @pci_priv: driver PCI bus context pointer
  *
  * Return: 0 for success, error code on failure
  */
-static inline int __cnss_get_mhi_soc_info(struct mhi_controller *mhi_ctrl)
-{
-	return mhi_get_soc_info(mhi_ctrl);
-}
-#else
-#define SOC_HW_VERSION_OFFS (0x224)
-#define SOC_HW_VERSION_FAM_NUM_BMSK (0xF0000000)
-#define SOC_HW_VERSION_FAM_NUM_SHFT (28)
-#define SOC_HW_VERSION_DEV_NUM_BMSK (0x0FFF0000)
-#define SOC_HW_VERSION_DEV_NUM_SHFT (16)
-#define SOC_HW_VERSION_MAJOR_VER_BMSK (0x0000FF00)
-#define SOC_HW_VERSION_MAJOR_VER_SHFT (8)
-#define SOC_HW_VERSION_MINOR_VER_BMSK (0x000000FF)
-#define SOC_HW_VERSION_MINOR_VER_SHFT (0)
-
-static int __cnss_get_mhi_soc_info(struct mhi_controller *mhi_ctrl)
+static int cnss_get_soc_info_pre_mhi(struct cnss_pci_data *pci_priv)
 {
 	u32 soc_info;
-	int ret;
+	struct cnss_device_version *device_version =
+		&pci_priv->plat_priv->device_version;
 
-	ret = mhi_ctrl->read_reg(mhi_ctrl,
-				 mhi_ctrl->regs + SOC_HW_VERSION_OFFS,
-				 &soc_info);
-	if (ret)
-		return ret;
+	soc_info = readl_relaxed(pci_priv->bar + SOC_HW_VERSION_OFFS);
 
-	mhi_ctrl->family_number = (soc_info & SOC_HW_VERSION_FAM_NUM_BMSK) >>
+	/* Unexpected value, query the link status */
+	if (PCI_INVALID_READ(soc_info) &&
+	    cnss_pci_check_link_status(pci_priv))
+		return -EIO;
+
+	device_version->family_number =
+		(soc_info & SOC_HW_VERSION_FAM_NUM_BMSK) >>
 		SOC_HW_VERSION_FAM_NUM_SHFT;
-	mhi_ctrl->device_number = (soc_info & SOC_HW_VERSION_DEV_NUM_BMSK) >>
+	device_version->device_number =
+		(soc_info & SOC_HW_VERSION_DEV_NUM_BMSK) >>
 		SOC_HW_VERSION_DEV_NUM_SHFT;
-	mhi_ctrl->major_version = (soc_info & SOC_HW_VERSION_MAJOR_VER_BMSK) >>
+	device_version->major_version =
+		(soc_info & SOC_HW_VERSION_MAJOR_VER_BMSK) >>
 		SOC_HW_VERSION_MAJOR_VER_SHFT;
-	mhi_ctrl->minor_version = (soc_info & SOC_HW_VERSION_MINOR_VER_BMSK) >>
+	device_version->minor_version =
+		(soc_info & SOC_HW_VERSION_MINOR_VER_BMSK) >>
 		SOC_HW_VERSION_MINOR_VER_SHFT;
-	return 0;
-}
-#endif
-
-static int cnss_get_mhi_soc_info(struct cnss_plat_data *plat_priv,
-				 struct mhi_controller *mhi_ctrl)
-{
-	int ret = 0;
-
-	ret = __cnss_get_mhi_soc_info(mhi_ctrl);
-	if (ret) {
-		cnss_pr_err("failed to get mhi soc info, ret %d\n", ret);
-		goto exit;
-	}
-
-	plat_priv->device_version.family_number = mhi_ctrl->family_number;
-	plat_priv->device_version.device_number = mhi_ctrl->device_number;
-	plat_priv->device_version.major_version = mhi_ctrl->major_version;
-	plat_priv->device_version.minor_version = mhi_ctrl->minor_version;
 
 	cnss_pr_dbg("Get device version info, family number: 0x%x, device number: 0x%x, major version: 0x%x, minor version: 0x%x\n",
-		    plat_priv->device_version.family_number,
-		    plat_priv->device_version.device_number,
-		    plat_priv->device_version.major_version,
-		    plat_priv->device_version.minor_version);
+		    device_version->family_number,
+		    device_version->device_number,
+		    device_version->major_version,
+		    device_version->minor_version);
 
 	/* Only keep lower 4 bits as real device major version */
-	plat_priv->device_version.major_version &= DEVICE_MAJOR_VERSION_MASK;
-
-exit:
-	return ret;
+	device_version->major_version &= DEVICE_MAJOR_VERSION_MASK;
+	return 0;
 }
 
 static bool cnss_is_tme_supported(struct cnss_pci_data *pci_priv)
@@ -8193,7 +8162,7 @@ static int cnss_pci_register_mhi(struct cnss_pci_data *pci_priv)
 	mhi_ctrl->seg_len = SZ_512K;
 	mhi_ctrl->fbc_download = true;
 
-	ret = cnss_get_mhi_soc_info(plat_priv, mhi_ctrl);
+	ret = cnss_get_soc_info_pre_mhi(pci_priv);
 	if (ret)
 		goto free_mhi_irq;
 
