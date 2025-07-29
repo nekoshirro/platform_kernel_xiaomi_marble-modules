@@ -327,13 +327,9 @@ static int raydium_ts_touch_entry(void)
 #ifdef CONFIG_ARCH_VIENNA
 		if (g_raydium_ts->ts_pinctrl) {
 			rc = pinctrl_select_state(g_raydium_ts->ts_pinctrl,
-				 g_raydium_ts->pmx_ts_int_suspend);
+				 g_raydium_ts->pinctrl_state_suspend);
 			if (rc < 0)
-				pr_err("Could not set pin to suspend interrupt\n");
-			rc = pinctrl_select_state(g_raydium_ts->ts_pinctrl,
-				 g_raydium_ts->pmx_ts_reset_suspend);
-			if (rc < 0)
-				pr_err("Could not set pin to suspend reset\n");
+				pr_err("Could not set pins to suspend\n");
 		}
 #elif
 		//Release the gpio's
@@ -392,15 +388,9 @@ static int raydium_ts_touch_exit(void)
 #ifdef CONFIG_ARCH_VIENNA
 		if (g_raydium_ts->ts_pinctrl) {
 			ret = pinctrl_select_state(g_raydium_ts->ts_pinctrl,
-				 g_raydium_ts->pmx_ts_int_active);
+				 g_raydium_ts->pinctrl_state_active);
 			if (ret < 0) {
-				pr_err("Could not set pin to active interrupt\n");
-				goto err_gpio_req;
-			}
-			ret = pinctrl_select_state(g_raydium_ts->ts_pinctrl,
-				 g_raydium_ts->pmx_ts_reset_active);
-			if (ret < 0) {
-				pr_err("Could not set pin to active reset\n");
+				pr_err("Could not set pins to active\n");
 				goto err_gpio_req;
 			}
 		}
