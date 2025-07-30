@@ -5731,7 +5731,6 @@ int cnss_pci_load_sku_license(struct cnss_pci_data *pci_priv)
 	int ret = 0;
 
 	switch (pci_priv->device_id) {
-	case PEACH_DEVICE_ID:
 	case FIG_DEVICE_ID:
 		soft_sku_filename = SOFT_SKU_LICENSE_FILENAME;
 		break;
@@ -5741,6 +5740,7 @@ int cnss_pci_load_sku_license(struct cnss_pci_data *pci_priv)
 	case QCA6490_DEVICE_ID:
 	case KIWI_DEVICE_ID:
 	case MANGO_DEVICE_ID:
+	case PEACH_DEVICE_ID:
 	default:
 		cnss_pr_dbg("Soft SKU not supported for device ID: (0x%x)\n",
 			    pci_priv->device_id);
@@ -5787,7 +5787,6 @@ int cnss_pci_load_tme_patch(struct cnss_pci_data *pci_priv)
 	int ret = 0;
 
 	switch (pci_priv->device_id) {
-	case PEACH_DEVICE_ID:
 	case FIG_DEVICE_ID:
 		if (plat_priv->device_version.major_version == FW_V1_NUMBER)
 			tme_patch_filename = TME_PATCH_FILE_NAME_1_0;
@@ -5800,6 +5799,7 @@ int cnss_pci_load_tme_patch(struct cnss_pci_data *pci_priv)
 	case QCA6490_DEVICE_ID:
 	case KIWI_DEVICE_ID:
 	case MANGO_DEVICE_ID:
+	case PEACH_DEVICE_ID:
 	default:
 		cnss_pr_dbg("TME-L not supported for device ID: (0x%x)\n",
 			    pci_priv->device_id);
