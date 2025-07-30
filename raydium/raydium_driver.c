@@ -1421,6 +1421,12 @@ static void raydium_work_handler(struct work_struct *work)
 		if ((u8_tp_status[POS_GES_STATUS] == RAD_WAKE_UP
 		 && g_u8_wakeup_flag == false) || (u8_tp_status[POS_GES_STATUS] == 0)) {
 		/*if (u8_tp_status[POS_GES_STATUS] == 0)	{*/
+#ifdef CONFIG_ARCH_VIENNA
+			input_report_key(g_raydium_ts->input_dev, BTN_TOUCH, false);
+			input_report_key(g_raydium_ts->input_dev, BTN_TOOL_FINGER, false);
+			input_report_key(g_raydium_ts->input_dev, BTN_TOOL_PEN, false);
+			input_sync(g_raydium_ts->input_dev);
+#endif
 			input_report_key(g_raydium_ts->input_dev, KEY_WAKEUP, true);
 			usleep_range(9500, 10500);
 			input_sync(g_raydium_ts->input_dev);
