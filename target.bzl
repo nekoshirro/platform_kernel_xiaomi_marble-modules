@@ -117,6 +117,23 @@ def define_canoe(t,v):
         ],
 )
 
+def define_bengal(t,v):
+    define_target_variant_modules(
+        target = t,
+        variant = v,
+        registry = touch_driver_modules,
+        modules = [
+            "synaptics_tcm_ts"
+        ],
+        config_options = [
+            "TOUCH_DLKM_ENABLE",
+            "CONFIG_MSM_TOUCH",
+            "CONFIG_ARCH_BENGAL",
+            "CONFIG_TOUCHSCREEN_SYNAPTICS_TCM",
+            "CONFIG_TOUCHSCREEN_DUMMY"
+        ],
+)
+
 def define_pineapple(t,v):
     define_target_variant_modules(
         target = t,
@@ -251,6 +268,8 @@ def define_touch_target():
             define_sunvm(t, v)
         elif t == "canoe":
             define_canoe(t, v)
+        elif t == "bengal":
+            define_bengal(t, v)
         elif t == "canoe-tuivm":
             define_canoevm(t, v)
         elif t == "canoe-oemvm":

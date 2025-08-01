@@ -17,6 +17,10 @@ ifeq ($(TARGET_BOARD_PLATFORM), canoe)
       LOCAL_MODULE_DDK_BUILD := true
 endif
 
+ifeq ($(TARGET_BOARD_PLATFORM), bengal)
+      LOCAL_MODULE_DDK_BUILD := true
+endif
+
 ifeq ($(TARGET_BOARD_PLATFORM), blair)
       LOCAL_MODULE_DDK_BUILD := true
 endif
