@@ -54,9 +54,9 @@
 #define DEFAULT_AUX_FILE_NAME		"aux_ucode.elf"
 #define AUX_V2_FILE_NAME		"aux_ucode20.elf"
 #define DEFAULT_PHY_UCODE_FILE_NAME	"phy_ucode.elf"
-#define TME_PATCH_FILE_NAME_1_0		"tmel_peach_10.elf"
-#define TME_PATCH_FILE_NAME_2_0		"tmel_peach_20.elf"
-#define SOFT_SKU_LICENSE_FILENAME	"cnss_softsku_peach.pfm"
+#define TME_PATCH_FILE_NAME_1_0		"tmel_%s_10.elf"
+#define TME_PATCH_FILE_NAME_2_0		"tmel_%s_20.elf"
+#define SOFT_SKU_LICENSE_FILENAME	"cnss_softsku_%s.pfm"
 #define PHY_UCODE_V2_FILE_NAME		"phy_ucode20.elf"
 #define DEFAULT_FW_FILE_NAME		"amss.bin"
 #define FW_V2_FILE_NAME			"amss20.bin"
@@ -5836,6 +5836,92 @@ void cnss_pci_free_qdss_mem(struct cnss_pci_data *pci_priv)
 	plat_priv->qdss_mem_seg_len = 0;
 }
 
+void __cnss_pci_add_fw_prefix_name(struct cnss_pci_data *pci_priv,
+				   char *prefix_name, char *name)
+{
+	switch (pci_priv->device_id) {
+	case QCN7605_DEVICE_ID:
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
+			  QCN7605_PATH_PREFIX "%s", name);
+		break;
+	case QCA6390_DEVICE_ID:
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
+			  QCA6390_PATH_PREFIX "%s", name);
+		break;
+	case QCA6490_DEVICE_ID:
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
+			  QCA6490_PATH_PREFIX "%s", name);
+		break;
+	case KIWI_DEVICE_ID:
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
+			  KIWI_PATH_PREFIX "%s", name);
+		break;
+	case MANGO_DEVICE_ID:
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
+			  MANGO_PATH_PREFIX "%s", name);
+		break;
+	case PEACH_DEVICE_ID:
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
+			  PEACH_PATH_PREFIX "%s", name);
+		break;
+	case COLOGNE_DEVICE_ID:
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
+			  COLOGNE_PATH_PREFIX "%s", name);
+		break;
+	case FIG_DEVICE_ID:
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
+			  FIG_PATH_PREFIX "%s", name);
+		break;
+	default:
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN, "%s", name);
+		break;
+	}
+
+	cnss_pr_dbg("FW name added with prefix: %s\n", prefix_name);
+}
+
+void cnss_pci_add_fw_prefix_name(struct cnss_pci_data *pci_priv,
+				 char *prefix_name, char *name)
+{
+	struct cnss_plat_data *plat_priv;
+
+	if (!pci_priv)
+		return;
+
+	plat_priv = pci_priv->plat_priv;
+
+	if (!plat_priv->use_fw_path_with_prefix) {
+		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN, "%s", name);
+		return;
+	}
+
+	__cnss_pci_add_fw_prefix_name(pci_priv, prefix_name, name);
+}
+
+static void cnss_pci_add_fw_infix_name(struct cnss_pci_data *pci_priv,
+				       char *input_name, char *output_name)
+{
+	char device_name[MAX_FIRMWARE_NAME_LEN];
+	char *empty_char = "\0";
+	int i, j = 0;
+
+	if (!pci_priv)
+		return;
+
+	/*Re-using prefix API to get infix target name string*/
+	__cnss_pci_add_fw_prefix_name(pci_priv, device_name, empty_char);
+
+	/*Remove extra slash along with target name*/
+	for (i = 0; device_name[i] != '\0'; i++) {
+		if (device_name[i] != '/')
+			device_name[j++] = device_name[i];
+	}
+	device_name[j] = '\0';
+
+	scnprintf(output_name, MAX_FIRMWARE_NAME_LEN, input_name, device_name);
+	cnss_pr_dbg("FW infix output filename %s\n", output_name);
+}
+
 int cnss_pci_load_sku_license(struct cnss_pci_data *pci_priv)
 {
 	struct cnss_plat_data *plat_priv = pci_priv->plat_priv;
@@ -5863,7 +5949,8 @@ int cnss_pci_load_sku_license(struct cnss_pci_data *pci_priv)
 	}
 
 	if (!sku_license_mem->va && !sku_license_mem->size) {
-		scnprintf(filename, MAX_FIRMWARE_NAME_LEN, "%s", soft_sku_filename);
+		cnss_pci_add_fw_infix_name(pci_priv, soft_sku_filename,
+					   filename);
 
 		cnss_pr_dbg("Invoke firmware_request_nowarn for %s\n", filename);
 
@@ -5922,7 +6009,8 @@ int cnss_pci_load_tme_patch(struct cnss_pci_data *pci_priv)
 	}
 
 	if (!tme_lite_mem->va && !tme_lite_mem->size) {
-		scnprintf(filename, MAX_FIRMWARE_NAME_LEN, "%s", tme_patch_filename);
+		cnss_pci_add_fw_infix_name(pci_priv, tme_patch_filename,
+					   filename);
 
 		cnss_pr_dbg("Invoke firmware_request_nowarn for %s\n", filename);
 
@@ -5976,12 +6064,14 @@ int cnss_pci_load_tme_opt_file(struct cnss_pci_data *pci_priv,
 	struct cnss_fw_mem *tme_lite_mem = NULL;
 	char filename[MAX_FIRMWARE_NAME_LEN];
 	char *tme_opt_filename = NULL;
+	char tme_opt_filename_outcome[MAX_FIRMWARE_NAME_LEN];
 	const struct firmware *fw_entry;
 	int ret = 0;
 
 	switch (pci_priv->device_id) {
 	case PEACH_DEVICE_ID:
 	case FIG_DEVICE_ID:
+	case COLOGNE_DEVICE_ID:
 		if (file == WLFW_TME_LITE_OEM_FUSE_FILE_V01) {
 			tme_opt_filename = TME_OEM_FUSE_FILE_NAME;
 			tme_lite_mem = &plat_priv->tme_opt_file_mem[0];
@@ -5991,12 +6081,6 @@ int cnss_pci_load_tme_opt_file(struct cnss_pci_data *pci_priv,
 		} else if (file == WLFW_TME_LITE_DPR_FILE_V01) {
 			tme_opt_filename = TME_DPR_FILE_NAME;
 			tme_lite_mem = &plat_priv->tme_opt_file_mem[2];
-		}
-		break;
-	case COLOGNE_DEVICE_ID:
-		if (file == WLFW_TME_LITE_OEM_FUSE_FILE_V01) {
-			tme_opt_filename = CGN_TME_OEM_FUSE_FILE_NAME;
-			tme_lite_mem = &plat_priv->tme_opt_file_mem[0];
 		}
 		break;
 	case QCA6174_DEVICE_ID:
@@ -6015,8 +6099,10 @@ int cnss_pci_load_tme_opt_file(struct cnss_pci_data *pci_priv,
 		return 0;
 
 	if (!tme_lite_mem->va && !tme_lite_mem->size) {
+		cnss_pci_add_fw_infix_name(pci_priv, tme_opt_filename,
+					   tme_opt_filename_outcome);
 		cnss_pci_add_fw_prefix_name(pci_priv, filename,
-					    tme_opt_filename);
+					    tme_opt_filename_outcome);
 
 		cnss_pr_dbg("Invoke firmware_request_nowarn for %s\n", filename);
 
@@ -7710,62 +7796,6 @@ static void cnss_mhi_pm_runtime_put_noidle(struct mhi_controller *mhi_ctrl)
 	struct cnss_pci_data *pci_priv = dev_get_drvdata(mhi_ctrl->cntrl_dev);
 
 	cnss_pci_pm_runtime_put_noidle(pci_priv, RTPM_ID_MHI);
-}
-
-void cnss_pci_add_fw_prefix_name(struct cnss_pci_data *pci_priv,
-				 char *prefix_name, char *name)
-{
-	struct cnss_plat_data *plat_priv;
-
-	if (!pci_priv)
-		return;
-
-	plat_priv = pci_priv->plat_priv;
-
-	if (!plat_priv->use_fw_path_with_prefix) {
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN, "%s", name);
-		return;
-	}
-
-	switch (pci_priv->device_id) {
-	case QCN7605_DEVICE_ID:
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
-			  QCN7605_PATH_PREFIX "%s", name);
-		break;
-	case QCA6390_DEVICE_ID:
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
-			  QCA6390_PATH_PREFIX "%s", name);
-		break;
-	case QCA6490_DEVICE_ID:
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
-			  QCA6490_PATH_PREFIX "%s", name);
-		break;
-	case KIWI_DEVICE_ID:
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
-			  KIWI_PATH_PREFIX "%s", name);
-		break;
-	case MANGO_DEVICE_ID:
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
-			  MANGO_PATH_PREFIX "%s", name);
-		break;
-	case PEACH_DEVICE_ID:
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
-			  PEACH_PATH_PREFIX "%s", name);
-		break;
-	case COLOGNE_DEVICE_ID:
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
-			  COLOGNE_PATH_PREFIX "%s", name);
-		break;
-	case FIG_DEVICE_ID:
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN,
-			  FIG_PATH_PREFIX "%s", name);
-		break;
-	default:
-		scnprintf(prefix_name, MAX_FIRMWARE_NAME_LEN, "%s", name);
-		break;
-	}
-
-	cnss_pr_dbg("FW name added with prefix: %s\n", prefix_name);
 }
 
 static int cnss_pci_update_fw_name(struct cnss_pci_data *pci_priv)

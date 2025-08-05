@@ -90,10 +90,9 @@
 				CNSS_EVENT_UNINTERRUPTIBLE)
 #define CNSS_EVENT_SYNC_UNKILLABLE (CNSS_EVENT_SYNC | CNSS_EVENT_UNKILLABLE)
 #define QMI_WLFW_MAX_TME_OPT_FILE_NUM 3
-#define TME_OEM_FUSE_FILE_NAME		"peach_sec.dat"
-#define TME_RPR_FILE_NAME		"peach_rpr.bin"
-#define TME_DPR_FILE_NAME		"peach_dpr.bin"
-#define CGN_TME_OEM_FUSE_FILE_NAME	"cologne_sec.dat"
+#define TME_OEM_FUSE_FILE_NAME		"%s_sec.dat"
+#define TME_RPR_FILE_NAME		"%s_rpr.bin"
+#define TME_DPR_FILE_NAME		"%s_dpr.bin"
 
 enum cx_modes {
 	CX_LEGACY = 0,
