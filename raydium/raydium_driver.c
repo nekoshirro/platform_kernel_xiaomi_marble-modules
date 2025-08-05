@@ -63,7 +63,6 @@ struct raydium_slot_status {
 struct raydium_slot_status gst_slot[MAX_TOUCH_NUM * 2];
 struct raydium_slot_status gst_slot_init = {0xFF, 0, 0};
 
-static int raydium_enable_regulator(struct raydium_ts_data *cd, bool en);
 
 #if (defined(CONFIG_RM_SYSFS_DEBUG))
 const struct attribute_group raydium_attr_group;
@@ -2382,7 +2381,7 @@ exit_error:
 	mutex_unlock(&g_raydium_ts->lock);
 	return i32_ret;
 }
-static int raydium_get_regulator(struct raydium_ts_data *cd, bool get)
+int raydium_get_regulator(struct raydium_ts_data *cd, bool get)
 {
 	int rc;
 
@@ -2428,7 +2427,7 @@ regulator_put:
 	return rc;
 }
 
-static int raydium_enable_regulator(struct raydium_ts_data *cd, bool en)
+int raydium_enable_regulator(struct raydium_ts_data *cd, bool en)
 {
 	int rc;
 
