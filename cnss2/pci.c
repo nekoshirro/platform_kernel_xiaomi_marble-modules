@@ -7776,21 +7776,6 @@ static int cnss_mhi_pm_runtime_get(struct mhi_controller *mhi_ctrl)
 	return cnss_pci_pm_runtime_get(pci_priv, RTPM_ID_MHI);
 }
 
-static int cnss_mhi_pm_runtime_get_sync(struct mhi_controller *mhi_ctrl)
-{
-	struct cnss_pci_data *pci_priv = dev_get_drvdata(mhi_ctrl->cntrl_dev);
-
-	return cnss_pci_pm_runtime_get_sync(pci_priv, RTPM_ID_MHI);
-}
-
-static int cnss_mhi_pm_runtime_put_autosuspend(struct mhi_controller *mhi_ctrl)
-{
-	struct cnss_pci_data *pci_priv = dev_get_drvdata(mhi_ctrl->cntrl_dev);
-
-	cnss_pci_pm_runtime_mark_last_busy(pci_priv);
-	return cnss_pci_pm_runtime_put_autosuspend(pci_priv, RTPM_ID_MHI);
-}
-
 static void cnss_mhi_pm_runtime_put_noidle(struct mhi_controller *mhi_ctrl)
 {
 	struct cnss_pci_data *pci_priv = dev_get_drvdata(mhi_ctrl->cntrl_dev);
@@ -8176,23 +8161,6 @@ static int cnss_get_soc_info_pre_mhi(struct cnss_pci_data *pci_priv)
 	return 0;
 }
 
-static bool cnss_is_tme_supported(struct cnss_pci_data *pci_priv)
-{
-	if (!pci_priv) {
-		cnss_pr_dbg("pci_priv is NULL");
-		return false;
-	}
-
-	switch (pci_priv->device_id) {
-	case PEACH_DEVICE_ID:
-	case COLOGNE_DEVICE_ID:
-	case FIG_DEVICE_ID:
-		return true;
-	default:
-		return false;
-	}
-}
-
 #ifdef CONFIG_ONE_MSI_VECTOR
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0))
 static void cnss_pci_set_mhi_event_config_for_one_msi(void)
@@ -8229,6 +8197,63 @@ static void cnss_pci_set_mhi_event_config_for_one_msi(void)
 }
 #endif
 
+#if IS_ENABLED(CONFIG_MHI_BUS_MISC)
+static int cnss_mhi_pm_runtime_get_sync(struct mhi_controller *mhi_ctrl)
+{
+	struct cnss_pci_data *pci_priv = dev_get_drvdata(mhi_ctrl->cntrl_dev);
+
+	return cnss_pci_pm_runtime_get_sync(pci_priv, RTPM_ID_MHI);
+}
+
+static int cnss_mhi_pm_runtime_put_autosuspend(struct mhi_controller *mhi_ctrl)
+{
+	struct cnss_pci_data *pci_priv = dev_get_drvdata(mhi_ctrl->cntrl_dev);
+
+	cnss_pci_pm_runtime_mark_last_busy(pci_priv);
+	return cnss_pci_pm_runtime_put_autosuspend(pci_priv, RTPM_ID_MHI);
+}
+
+static bool cnss_is_tme_supported(struct cnss_pci_data *pci_priv)
+{
+	if (!pci_priv) {
+		cnss_pr_dbg("pci_priv is NULL");
+		return false;
+	}
+
+	switch (pci_priv->device_id) {
+	case PEACH_DEVICE_ID:
+	case COLOGNE_DEVICE_ID:
+	case FIG_DEVICE_ID:
+		return true;
+	default:
+		return false;
+	}
+}
+
+/**
+ * cnss_mhi_misc_init() - Initialize MHI controller with misc functionality
+ * @pci_priv: PCI device private data structure
+ * @mhi_ctrl: MHI controller to initialize
+ *
+ * Return: None
+ */
+static void cnss_mhi_misc_init(struct cnss_pci_data *pci_priv,
+			       struct mhi_controller *mhi_ctrl)
+{
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(6, 2, 0))
+	mhi_ctrl->fallback_fw_image = pci_priv->plat_priv->fw_fallback_name;
+#endif
+	mhi_ctrl->runtime_get_sync = cnss_mhi_pm_runtime_get_sync;
+	mhi_ctrl->runtime_put_autosuspend = cnss_mhi_pm_runtime_put_autosuspend;
+	mhi_ctrl->tme_supported_image = cnss_is_tme_supported(pci_priv);
+}
+#else
+static inline void cnss_mhi_misc_init(struct cnss_pci_data *pci_priv,
+				      struct mhi_controller *mhi_ctrl)
+{
+}
+#endif
+
 static int cnss_pci_register_mhi(struct cnss_pci_data *pci_priv)
 {
 	int ret = 0;
@@ -8254,13 +8279,7 @@ static int cnss_pci_register_mhi(struct cnss_pci_data *pci_priv)
 
 	pci_priv->mhi_ctrl = mhi_ctrl;
 	mhi_ctrl->cntrl_dev = &pci_dev->dev;
-
 	mhi_ctrl->fw_image = plat_priv->firmware_name;
-#if IS_ENABLED(CONFIG_MHI_BUS_MISC) && \
-(LINUX_VERSION_CODE < KERNEL_VERSION(6, 2, 0))
-	mhi_ctrl->fallback_fw_image = plat_priv->fw_fallback_name;
-#endif
-
 	mhi_ctrl->regs = pci_priv->bar;
 	mhi_ctrl->reg_len = pci_resource_len(pci_priv->pci_dev, PCI_BAR_NUM);
 	bar_start = pci_resource_start(pci_priv->pci_dev, PCI_BAR_NUM);
@@ -8289,8 +8308,6 @@ static int cnss_pci_register_mhi(struct cnss_pci_data *pci_priv)
 
 	mhi_ctrl->status_cb = cnss_mhi_notify_status;
 	mhi_ctrl->runtime_get = cnss_mhi_pm_runtime_get;
-	mhi_ctrl->runtime_get_sync = cnss_mhi_pm_runtime_get_sync;
-	mhi_ctrl->runtime_put_autosuspend = cnss_mhi_pm_runtime_put_autosuspend;
 	mhi_ctrl->runtime_put = cnss_mhi_pm_runtime_put_noidle;
 	mhi_ctrl->read_reg = cnss_mhi_read_reg;
 	mhi_ctrl->write_reg = cnss_mhi_write_reg;
@@ -8326,7 +8343,7 @@ static int cnss_pci_register_mhi(struct cnss_pci_data *pci_priv)
 		cnss_mhi_config = &cnss_mhi_config_no_diag;
 	}
 
-	mhi_ctrl->tme_supported_image = cnss_is_tme_supported(pci_priv);
+	cnss_mhi_misc_init(pci_priv, mhi_ctrl);
 
 	ret = mhi_register_controller(mhi_ctrl, cnss_mhi_config);
 	if (ret) {
