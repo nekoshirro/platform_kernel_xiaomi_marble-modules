@@ -7805,6 +7805,7 @@ static int cnss_pci_update_fw_name(struct cnss_pci_data *pci_priv)
 	case MANGO_DEVICE_ID:
 	case PEACH_DEVICE_ID:
 	case COLOGNE_DEVICE_ID:
+	case FIG_DEVICE_ID:
 		switch (plat_priv->device_version.major_version) {
 		case FW_V2_NUMBER:
 				cnss_pci_add_fw_prefix_name(pci_priv,
