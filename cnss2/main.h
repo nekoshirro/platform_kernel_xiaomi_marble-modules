@@ -480,6 +480,12 @@ struct cnss_tcs_info {
 	void __iomem *cmd_base_addr_io;
 };
 
+struct cnss_irq_ts_info {
+	bool is_valid_addr;
+	resource_size_t cmd_ts_addr;
+	void __iomem *cmd_ts_addr_io;
+};
+
 struct cnss_cpr_info {
 	resource_size_t tcs_cmd_data_addr;
 	void __iomem *tcs_cmd_data_addr_io;
@@ -584,6 +590,15 @@ struct cnss_xdump_helper {
 	u8 dumping_wl_over_bt;
 	u8 dumping_bt_over_wl;
 	struct completion wl_over_bt_complete;
+};
+
+struct cnss_wlan_tsf_info {
+	int wlan_tsf_gpio;
+	int irq_num;
+	void *context;
+	uint64_t host_time_us;
+	wlan_tsf_handler_t wlan_tsf_handler;
+	struct cnss_irq_ts_info irq_ts_info;
 };
 
 struct cnss_plat_data {
@@ -762,6 +777,7 @@ struct cnss_plat_data {
 	struct regulator *cngo_pbs;
 #endif
 	struct cnss_wlan_host_param *host_param;
+	struct cnss_wlan_tsf_info tsf_info;
 };
 
 #if IS_ENABLED(CONFIG_ARCH_QCOM)
