@@ -4412,6 +4412,11 @@ static void cnss_wlan_reg_driver_work(struct work_struct *work)
 	if (test_bit(CNSS_WLAN_HW_DISABLED, &plat_priv->driver_state))
 		return;
 
+	if (test_bit(CNSS_RADIO_OFF, &plat_priv->driver_state)) {
+		cnss_pr_dbg("RADIO OFF received from FW, avoid register driver\n");
+		return;
+	}
+
 	if (test_bit(CNSS_COLD_BOOT_CAL_DONE, &plat_priv->driver_state)) {
 		goto reg_driver;
 	} else {
@@ -4519,6 +4524,10 @@ int cnss_wlan_register_driver(struct cnss_wlan_driver *driver_ops)
 	if (test_bit(CNSS_IN_REBOOT, &plat_priv->driver_state)) {
 		cnss_pr_dbg("Reboot/Shutdown is in progress, ignore register driver\n");
 		return -EINVAL;
+	}
+	if (test_bit(CNSS_RADIO_OFF, &plat_priv->driver_state)) {
+		cnss_pr_info("WLAN register driver rejected for RADIO OFF\n");
+		return 0;
 	}
 
 	if (!id_table || !pci_dev_present(id_table)) {
