@@ -5935,22 +5935,13 @@ int cnss_pci_load_sku_license(struct cnss_pci_data *pci_priv)
 	const struct firmware *fw_entry;
 	int ret = 0;
 
-	switch (pci_priv->device_id) {
-	case FIG_DEVICE_ID:
-		soft_sku_filename = SOFT_SKU_LICENSE_FILENAME;
-		break;
-	case QCA6174_DEVICE_ID:
-	case QCA6290_DEVICE_ID:
-	case QCA6390_DEVICE_ID:
-	case QCA6490_DEVICE_ID:
-	case KIWI_DEVICE_ID:
-	case MANGO_DEVICE_ID:
-	case PEACH_DEVICE_ID:
-	default:
+	if (pci_priv->device_id != FIG_DEVICE_ID) {
 		cnss_pr_dbg("Soft SKU not supported for device ID: (0x%x)\n",
 			    pci_priv->device_id);
 		return 0;
 	}
+
+	soft_sku_filename = SOFT_SKU_LICENSE_FILENAME;
 
 	if (!sku_license_mem->va && !sku_license_mem->size) {
 		cnss_pci_add_fw_infix_name(pci_priv, soft_sku_filename,
@@ -5992,24 +5983,23 @@ int cnss_pci_load_tme_patch(struct cnss_pci_data *pci_priv)
 	const struct firmware *fw_entry;
 	int ret = 0;
 
-	switch (pci_priv->device_id) {
-	case FIG_DEVICE_ID:
-		if (plat_priv->device_version.major_version == FW_V1_NUMBER)
-			tme_patch_filename = TME_PATCH_FILE_NAME_1_0;
-		else if (plat_priv->device_version.major_version == FW_V2_NUMBER)
-			tme_patch_filename = TME_PATCH_FILE_NAME_2_0;
-		break;
-	case QCA6174_DEVICE_ID:
-	case QCA6290_DEVICE_ID:
-	case QCA6390_DEVICE_ID:
-	case QCA6490_DEVICE_ID:
-	case KIWI_DEVICE_ID:
-	case MANGO_DEVICE_ID:
-	case PEACH_DEVICE_ID:
-	default:
+	if (pci_priv->device_id != FIG_DEVICE_ID) {
 		cnss_pr_dbg("TME-L not supported for device ID: (0x%x)\n",
 			    pci_priv->device_id);
 		return 0;
+	}
+
+	switch (plat_priv->device_version.major_version) {
+	case FW_V1_NUMBER:
+		tme_patch_filename = TME_PATCH_FILE_NAME_1_0;
+		break;
+	case FW_V2_NUMBER:
+		tme_patch_filename = TME_PATCH_FILE_NAME_2_0;
+		break;
+	default:
+		cnss_pr_dbg("Invalid device major version(0x%x)\n",
+			    plat_priv->device_version.major_version);
+		return -EINVAL;
 	}
 
 	if (!tme_lite_mem->va && !tme_lite_mem->size) {
