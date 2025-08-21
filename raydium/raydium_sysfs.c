@@ -363,6 +363,7 @@ static int raydium_ts_touch_entry(void)
 	}
 
 	LOGD(LOG_INFO, "%s[touch] Start End\n", __func__);
+	return 0;
 err_ret:
 	return rc;
 }
