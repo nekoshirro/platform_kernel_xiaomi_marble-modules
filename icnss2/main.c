@@ -2969,23 +2969,10 @@ static void icnss_update_shutdown_state_to_fw(struct icnss_priv *priv,
 				!test_bit(ICNSS_BLOCK_SHUTDOWN, &priv->state) &&
 				!atomic_read(&priv->is_idle_shutdown)) {
 
-				icnss_pr_info("WLAN_EN Value: %d\n",
-					      gpio_get_value(priv->pinctrl_info.wlan_en_gpio));
-
 				icnss_driver_event_post(priv,
 					  ICNSS_DRIVER_EVENT_UNREGISTER_DRIVER,
 					  ICNSS_EVENT_SYNC_UNINTERRUPTIBLE,
 					  NULL);
-
-				if (gpio_get_value(priv->pinctrl_info.wlan_en_gpio)) {
-					ret = icnss_select_pinctrl_state(priv, false);
-					if (ret)
-						icnss_pr_err("Failed to select pinctrl state, err = %d\n",
-							     ret);
-				}
-
-				icnss_pr_info("WLAN_EN Value: %d\n",
-					      gpio_get_value(priv->pinctrl_info.wlan_en_gpio));
 
 				clear_bit(ICNSS_FW_READY, &priv->state);
 			}
@@ -3067,6 +3054,8 @@ static int icnss_wpss_notifier_nb(struct notifier_block *nb,
 	struct icnss_priv *priv = container_of(nb, struct icnss_priv,
 					       wpss_ssr_nb);
 	struct icnss_uevent_fw_down_data fw_down_data = {0};
+	int ret = 0;
+	int gpio_val = 0;
 
 	icnss_pr_info("WPSS-Notify: event %s(%lu)\n",
 		      icnss_qcom_ssr_notify_state_to_str(code), code);
@@ -3081,7 +3070,25 @@ static int icnss_wpss_notifier_nb(struct notifier_block *nb,
 			icnss_pr_info("Collecting msa0 segment dump\n");
 			icnss_msa0_ramdump(priv);
 			priv->notif_crashed = false;
+		} else {
+			if (priv->device_id == WCN7750_DEVICE_ID) {
+
+				if (priv->pinctrl_info.wlan_en_gpio) {
+					gpio_val = gpio_get_value(priv->pinctrl_info.wlan_en_gpio);
+					icnss_pr_info("WLAN_EN Value: %d\n", gpio_val);
+
+					if (gpio_val > 0) {
+						ret = icnss_select_pinctrl_state(priv, false);
+						if (ret)
+							icnss_pr_err("Failed to select pinctrl state, err = %d\n",
+									ret);
+					}
+				} else {
+					icnss_pr_err("Invalid WLAN_EN GPIO\n");
+				}
+			}
 		}
+
 		goto out;
 	default:
 		goto out;
