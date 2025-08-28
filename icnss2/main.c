@@ -1290,7 +1290,7 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 			goto qmi_registered;
 		}
 		ignore_assert = true;
-		goto fail;
+		goto cleanup_hw_poweroff;
 	}
 
 	if (priv->is_rf_subtype_valid) {
@@ -1317,26 +1317,26 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 
 		ret = wlfw_host_cap_send_sync(priv);
 		if (ret < 0)
-			goto fail;
+			goto cleanup_hw_poweroff;
 	}
 
 	if (priv->device_id == ADRASTEA_DEVICE_ID) {
 		if (!priv->msa_va) {
 			icnss_pr_err("Invalid MSA address\n");
 			ret = -EINVAL;
-			goto fail;
+			goto cleanup_hw_poweroff;
 		}
 
 		ret = wlfw_msa_mem_info_send_sync_msg(priv);
 		if (ret < 0) {
 			ignore_assert = true;
-			goto fail;
+			goto cleanup_hw_poweroff;
 		}
 
 		ret = wlfw_msa_ready_send_sync_msg(priv);
 		if (ret < 0) {
 			ignore_assert = true;
-			goto fail;
+			goto cleanup_hw_poweroff;
 		}
 	}
 
@@ -1346,14 +1346,14 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 	ret = wlfw_cap_send_sync_msg(priv);
 	if (ret < 0) {
 		ignore_assert = true;
-		goto fail;
+		goto cleanup_hw_poweroff;
 	}
 
 	if (priv->device_id == ADRASTEA_DEVICE_ID && priv->is_chain1_supported) {
 		ret = icnss_power_on_chain1_reg(priv);
 		if (ret) {
 			ignore_assert = true;
-			goto fail;
+			goto cleanup_hw_poweroff;
 		}
 	}
 
@@ -1371,7 +1371,7 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 		ret = wlfw_device_info_send_msg(priv);
 		if (ret < 0) {
 			ignore_assert = true;
-			goto  device_info_failure;
+			goto  cleanup_hw_poweroff;
 		}
 
 		if (priv->shared_mem[WLFW_SHARED_MEM_CLIENT_XPAN_V01].size)
@@ -1386,7 +1386,7 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 				icnss_pr_err("DMA map failed for lpass shared mem address:0x%llx\n",
 						priv->shared_mem[WLFW_SHARED_MEM_CLIENT_XPAN_V01].pa_addr);
 
-				goto device_info_failure;
+				goto cleanup_hw_poweroff;
 			}
 		}
 
@@ -1395,7 +1395,7 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 						 priv->mem_base_size);
 		if (!priv->mem_base_va) {
 			icnss_pr_err("Ioremap failed for bar address\n");
-			goto device_info_failure;
+			goto cleanup_hw_poweroff;
 		}
 
 		icnss_pr_dbg("Non-Secured Bar Address pa: %pa, va: 0x%pK\n",
@@ -1420,20 +1420,20 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 		ret = icnss_wlfw_bdf_dnld_send_sync(priv,
 						    priv->ctrl_params.bdf_type);
 		if (ret < 0)
-			goto device_info_failure;
+			goto cleanup_hw_poweroff;
 	}
 
 	if (priv->device_id == WCN7750_DEVICE_ID) {
 		ret = icnss_load_phy_ucode(priv);
 		if (ret < 0) {
 			icnss_pr_err("Phy ucode image loading failed, ret = %d\n", ret);
-			goto device_info_failure;
+			goto cleanup_hw_poweroff;
 		}
 
 		ret = icnss_wlfw_phy_ucode_dnld_send_sync(priv);
 		if (ret < 0) {
 			icnss_pr_err("Phy ucode download to wlan fw failed, ret = %d\n", ret);
-			goto device_info_failure;
+			goto cleanup_hw_poweroff;
 		}
 	}
 
@@ -1441,13 +1441,13 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 		ret = icnss_load_aux(priv);
 		if (ret < 0) {
 			icnss_pr_err("AUX image loading failed, ret = %d\n", ret);
-			goto device_info_failure;
+			goto cleanup_hw_poweroff;
 		}
 
 		ret = icnss_wlfw_aux_dnld_send_sync(priv);
 		if (ret < 0) {
 			icnss_pr_err("AUX download to wlan fw failed, ret = %d\n", ret);
-			goto device_info_failure;
+			goto cleanup_hw_poweroff;
 		}
 	}
 
@@ -1476,7 +1476,7 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 		if (priv->bdf_download_support) {
 			ret = wlfw_cal_report_req(priv);
 			if (ret < 0)
-				goto device_info_failure;
+				goto cleanup_hw_poweroff;
 		}
 
 		wlfw_dynamic_feature_mask_send_sync_msg(priv,
@@ -1494,7 +1494,7 @@ static int icnss_driver_event_server_arrive(struct icnss_priv *priv,
 
 	return ret;
 
-device_info_failure:
+cleanup_hw_poweroff:
 	icnss_hw_power_off(priv);
 fail:
 	ICNSS_ASSERT(ignore_assert);
