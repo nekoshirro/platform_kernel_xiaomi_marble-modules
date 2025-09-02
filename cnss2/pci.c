@@ -577,7 +577,9 @@ static const struct mhi_controller_config cnss_mhi_config_genoa = {
 		CNSS_MHI_SATELLITE_EVT_COUNT,
 	.event_cfg = cnss_mhi_events,
 	.m2_no_db = true,
+#if IS_ENABLED(CONFIG_MHI_BUS_MISC)
 	.bhie_offset = 0x0324,
+#endif
 };
 
 static const struct mhi_controller_config cnss_mhi_config_no_satellite = {
