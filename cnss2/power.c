@@ -1410,9 +1410,10 @@ int cnss_power_on_device(struct cnss_plat_data *plat_priv, bool reset)
 			goto out;
 		}
 
-		ret = cnss_set_cxpc_power_on_off(plat_priv, CX_RET);
+		cnss_pr_info("setting CX to OFF by default\n");
+		ret = cnss_set_cxpc_power_on_off(plat_priv, CX_OFF);
 		if (ret < 0) {
-			cnss_pr_err("failed to set cx to CX_RET\n");
+			cnss_pr_err("failed to set CX to CX_OFF\n");
 			goto out;
 		}
 	}
