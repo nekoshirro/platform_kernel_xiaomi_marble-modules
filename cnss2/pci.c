@@ -6071,31 +6071,21 @@ int cnss_pci_load_tme_opt_file(struct cnss_pci_data *pci_priv,
 	const struct firmware *fw_entry;
 	int ret = 0;
 
-	switch (pci_priv->device_id) {
-	case PEACH_DEVICE_ID:
-	case FIG_DEVICE_ID:
-	case COLOGNE_DEVICE_ID:
-		if (file == WLFW_TME_LITE_OEM_FUSE_FILE_V01) {
-			tme_opt_filename = TME_OEM_FUSE_FILE_NAME;
-			tme_lite_mem = &plat_priv->tme_opt_file_mem[0];
-		} else if (file == WLFW_TME_LITE_RPR_FILE_V01) {
-			tme_opt_filename = TME_RPR_FILE_NAME;
-			tme_lite_mem = &plat_priv->tme_opt_file_mem[1];
-		} else if (file == WLFW_TME_LITE_DPR_FILE_V01) {
-			tme_opt_filename = TME_DPR_FILE_NAME;
-			tme_lite_mem = &plat_priv->tme_opt_file_mem[2];
-		}
-		break;
-	case QCA6174_DEVICE_ID:
-	case QCA6290_DEVICE_ID:
-	case QCA6390_DEVICE_ID:
-	case QCA6490_DEVICE_ID:
-	case KIWI_DEVICE_ID:
-	case MANGO_DEVICE_ID:
-	default:
-		cnss_pr_dbg("TME-L opt file: %s not supported for device ID: (0x%x)\n",
-			    tme_opt_filename, pci_priv->device_id);
+	if (pci_priv->device_id != FIG_DEVICE_ID) {
+		cnss_pr_dbg("TME-L not supported for device ID: (0x%x)\n",
+			    pci_priv->device_id);
 		return 0;
+	}
+
+	if (file == WLFW_TME_LITE_OEM_FUSE_FILE_V01) {
+		tme_opt_filename = TME_OEM_FUSE_FILE_NAME;
+		tme_lite_mem = &plat_priv->tme_opt_file_mem[0];
+	} else if (file == WLFW_TME_LITE_RPR_FILE_V01) {
+		tme_opt_filename = TME_RPR_FILE_NAME;
+		tme_lite_mem = &plat_priv->tme_opt_file_mem[1];
+	} else if (file == WLFW_TME_LITE_DPR_FILE_V01) {
+		tme_opt_filename = TME_DPR_FILE_NAME;
+		tme_lite_mem = &plat_priv->tme_opt_file_mem[2];
 	}
 
 	if (!tme_lite_mem)

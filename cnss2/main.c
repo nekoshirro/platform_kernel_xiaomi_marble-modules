@@ -1189,20 +1189,25 @@ static int cnss_fw_mem_ready_hdlr(struct cnss_plat_data *plat_priv)
 	if (ret)
 		goto out;
 
-	cnss_bus_load_tme_patch(plat_priv);
+	if (plat_priv->device_id == FIG_DEVICE_ID) {
 
-	cnss_wlfw_tme_patch_dnld_send_sync(plat_priv,
-					   WLFW_TME_LITE_PATCH_FILE_V01);
+		ret = cnss_bus_load_tme_patch(plat_priv);
+		if (!ret)
+		    cnss_wlfw_tme_patch_dnld_send_sync(plat_priv,
+				WLFW_TME_LITE_PATCH_FILE_V01);
 
-	if (test_bit(CNSS_SEC_DOWNLOAD, &plat_priv->driver_state)) {
-		cnss_bus_load_tme_opt_file(plat_priv, WLFW_TME_LITE_OEM_FUSE_FILE_V01);
-		cnss_wlfw_tme_opt_file_dnld_send_sync(plat_priv, WLFW_TME_LITE_OEM_FUSE_FILE_V01);
+		if (test_bit(CNSS_SEC_DOWNLOAD, &plat_priv->driver_state)) {
 
-		clear_bit(CNSS_SEC_DOWNLOAD, &plat_priv->driver_state);
+			cnss_bus_load_tme_opt_file(plat_priv, WLFW_TME_LITE_OEM_FUSE_FILE_V01);
+			cnss_wlfw_tme_opt_file_dnld_send_sync(plat_priv, WLFW_TME_LITE_OEM_FUSE_FILE_V01);
+
+			clear_bit(CNSS_SEC_DOWNLOAD, &plat_priv->driver_state);
+		}
+
+		ret = cnss_bus_load_sku_license(plat_priv);
+		if (!ret)
+		    cnss_wlfw_soft_sku_dnld_send_sync(plat_priv);
 	}
-	ret = cnss_bus_load_sku_license(plat_priv);
-	if (!ret)
-		cnss_wlfw_soft_sku_dnld_send_sync(plat_priv);
 
 	if (plat_priv->hds_enabled)
 		cnss_wlfw_bdf_dnld_send_sync(plat_priv, CNSS_BDF_HDS);
