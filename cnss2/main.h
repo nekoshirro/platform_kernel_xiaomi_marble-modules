@@ -766,6 +766,10 @@ struct cnss_plat_data {
 	struct cnss_wlan_host_param *host_param;
 };
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0))
+#define from_timer timer_container_of
+#endif
+
 #if IS_ENABLED(CONFIG_ARCH_QCOM)
 static inline u64 cnss_get_host_timestamp(struct cnss_plat_data *plat_priv)
 {
