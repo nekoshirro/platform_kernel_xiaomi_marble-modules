@@ -1,5 +1,6 @@
 targets = [
     # keep sorted
+    "art",
     "autogvm",
     "canoe",
     "chora",
