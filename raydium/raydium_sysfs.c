@@ -33,6 +33,9 @@
 #include <linux/pinctrl/consumer.h>
 #include "raydium_driver.h"
 #include <glink_interface.h>
+#if defined(CONFIG_PANEL_NOTIFIER)
+#include <linux/soc/qcom/panel_event_notifier.h>
+#endif
 
 
 static int raydium_ts_touch_entry(void);
@@ -537,6 +540,28 @@ static ssize_t raydium_touch_lock_store(struct device *dev,
 			gpio_set_value(g_raydium_ts->rst_gpio, 1);
 			msleep(RAYDIUM_RESET_DELAY_MSEC);/*100ms*/
 		}
+
+#ifdef CONFIG_ARCH_VIENNA
+#if defined(CONFIG_PANEL_NOTIFIER)
+		if (g_raydium_ts->blank == DRM_PANEL_EVENT_BLANK_LP ||
+		g_raydium_ts->blank == DRM_PANEL_EVENT_BLANK || g_raydium_ts->fb_state == FB_OFF) {
+#else
+		if (g_raydium_ts->blank == DRM_PANEL_BLANK_LP ||
+		g_raydium_ts->blank == DRM_PANEL_BLANK_POWERDOWN
+		|| g_raydium_ts->fb_state == FB_OFF) {
+#endif
+			input_report_key(g_raydium_ts->input_dev, BTN_TOUCH, false);
+			input_report_key(g_raydium_ts->input_dev, BTN_TOOL_FINGER, false);
+			input_report_key(g_raydium_ts->input_dev, BTN_TOOL_PEN, false);
+			input_sync(g_raydium_ts->input_dev);
+			input_report_key(g_raydium_ts->input_dev, KEY_WAKEUP, true);
+			usleep_range(9500, 10500);
+			input_sync(g_raydium_ts->input_dev);
+			input_report_key(g_raydium_ts->input_dev, KEY_WAKEUP, false);
+			input_sync(g_raydium_ts->input_dev);
+		}
+#endif
+
 		LOGD(LOG_INFO, "[touch]RAD %s disable touch lock!!\n", __func__);
 
 		g_raydium_ts->is_sleep = 0;
