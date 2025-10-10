@@ -2362,8 +2362,7 @@ int cnss_ol_cpr_cfg_ext_setup(struct cnss_plat_data *plat_priv,
 	for (i = 0; i <= plat_vreg_param_len; i++) {
 		if (plat_vreg_param[i].wake_volt > 0) {
 			if (strcmp(plat_vreg_param[i].vreg,
-				   plat_priv->pmu_vreg_map[cx_pin_idx + 1]) == 0 &&
-			    cx_mode_dt == CX_DATA_PIN_PMIC) {
+				   plat_priv->pmu_vreg_map[cx_pin_idx + 1]) == 0) {
 				ret = cnss_set_cx_voltage_corner(plat_priv,
 								 CX_NOM,
 								 plat_vreg_param[i].wake_volt);
@@ -2378,8 +2377,7 @@ int cnss_ol_cpr_cfg_ext_setup(struct cnss_plat_data *plat_priv,
 		}
 		if (plat_vreg_param[i].sleep_volt > 0) {
 			if (strcmp(plat_vreg_param[i].vreg,
-				   plat_priv->pmu_vreg_map[cx_pin_idx + 1]) == 0 &&
-			    cx_mode_dt == CX_DATA_PIN_PMIC) {
+				   plat_priv->pmu_vreg_map[cx_pin_idx + 1]) == 0) {
 				ret = cnss_set_cx_voltage_corner(plat_priv,
 								 CX_RET_V,
 								 plat_vreg_param[i].sleep_volt);
@@ -2394,8 +2392,7 @@ int cnss_ol_cpr_cfg_ext_setup(struct cnss_plat_data *plat_priv,
 		}
 		if (plat_vreg_param[i].svs_v > 0) {
 			if (strcmp(plat_vreg_param[i].vreg,
-				   plat_priv->pmu_vreg_map[cx_pin_idx + 1]) == 0 &&
-			    cx_mode_dt == CX_DATA_PIN_PMIC) {
+				   plat_priv->pmu_vreg_map[cx_pin_idx + 1]) == 0) {
 				ret = cnss_set_cx_voltage_corner(plat_priv,
 								 CX_SVS,
 								 plat_vreg_param[i].svs_v);
@@ -2410,8 +2407,7 @@ int cnss_ol_cpr_cfg_ext_setup(struct cnss_plat_data *plat_priv,
 		}
 		if (plat_vreg_param[i].svsL1_v > 0) {
 			if (strcmp(plat_vreg_param[i].vreg,
-				   plat_priv->pmu_vreg_map[cx_pin_idx + 1]) == 0 &&
-			    cx_mode_dt == CX_DATA_PIN_PMIC) {
+				   plat_priv->pmu_vreg_map[cx_pin_idx + 1]) == 0) {
 				ret = cnss_set_cx_voltage_corner(plat_priv,
 								 CX_SVSL1,
 								 plat_vreg_param[i].svsL1_v);
