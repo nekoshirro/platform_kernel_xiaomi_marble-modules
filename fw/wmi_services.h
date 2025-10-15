@@ -727,6 +727,8 @@ typedef  enum  {
     WMI_SERVICE_VDEV_TRAFFIC_MONITORING = 466, /* FW supports traffic monitoring */
     WMI_SERVICE_EM_DPS_ASSISTING_ROLE_SUPPORT = 467, /* Indicates support for Energy Mgmt DPS assisting role operation */
     WMI_SERVICE_XPAN_SAP_STA_PWRSAVE_SUPPORT = 468, /* Indicates support for power optimization in XPAN + STA */
+    WMI_SERVICE_CFP_SUPPORT = 469, /* FW supports control frame protection */
+    WMI_SERVICE_CFP_PADDING_SUPPORT = 470, /* FW supports control frame protection padding */
 
 
     WMI_MAX_EXT2_SERVICE

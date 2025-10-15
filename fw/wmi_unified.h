@@ -17429,6 +17429,10 @@ typedef struct {
      * vdev_stats_id_valid field is non-zero.
      */
     A_UINT32 vdev_stats_id;
+    /** cfp_enable: indicate whether control frame protection is enabled */
+    A_UINT32 cfp_enable;
+
+
 /* This TLV is followed by another TLV of array of structures
  *   wmi_vdev_txrx_streams cfg_txrx_streams[];
  *   wmi_vdev_create_mlo_params mlo_params[0,1];
@@ -22404,7 +22408,7 @@ typedef struct {
     WMI_SET_BITS(mpduq_msduq_number,22,5,value)
 
 typedef struct {
-    A_UINT32 tlv_header; /* TAG_ID : WMITLV_TAG_STRUC_wmi_peer_assoc_hol_mdsuq_params */
+    A_UINT32 tlv_header; /* TAG_ID : WMITLV_TAG_STRUC_wmi_peer_assoc_hol_msduq_params */
 
     /**
      * A_UINT32
@@ -22444,7 +22448,37 @@ typedef struct {
 
     /* Upper 8 bits of 40 bit pn physical address */
     A_UINT32 pn_paddr_39_32;
-} wmi_peer_assoc_hol_mdsuq_params;
+} wmi_peer_assoc_hol_msduq_params;
+/*
+ * for backwards compatibility, maintain old version of the name
+ * (with "mdsu" typo)
+ */
+typedef wmi_peer_assoc_hol_msduq_params wmi_peer_assoc_hol_mdsuq_params;
+
+typedef struct {
+    A_UINT32 tlv_header; /* TAG_ID : WMITLV_TAG_STRUC_wmi_peer_assoc_cfp_params */
+
+    /* control frame protection enable/disable per peer */
+    A_UINT32 enable_cfp;
+
+    /*
+     * MIC Padding Delay Field Values:
+     *
+     * Value    Delay
+     * ----------------
+     * 0        0 us
+     * 1        4 us
+     * 2        8 us
+     * 3        12 us
+     * 4        16 us
+     * 5        20 us
+     * 6        24 us
+     * 7        28 us
+     * 8        32 us
+     * 9-15     Reserved
+     */
+    A_UINT32 cfp_padding_delay;
+} wmi_peer_assoc_cfp_params; /* cfp -> control frame protection */
 
 /*
  * PEER assoc_flags for assoc complete:
