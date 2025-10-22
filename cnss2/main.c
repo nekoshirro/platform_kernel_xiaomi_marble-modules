@@ -2252,6 +2252,12 @@ int cnss_set_host_sol_value(struct cnss_plat_data *plat_priv, int value)
 {
 	struct cnss_sol_gpio *sol_gpio = &plat_priv->sol_gpio;
 
+	if (plat_priv->device_id == FIG_DEVICE_ID) {
+		cnss_pr_info("Normal host sol not supported for: 0x%lx\n",
+			     plat_priv->device_id);
+		return -EINVAL;
+	}
+
 	if (sol_gpio->host_sol_gpio < 0)
 		return -EINVAL;
 
@@ -2265,6 +2271,12 @@ int cnss_set_host_sol_value(struct cnss_plat_data *plat_priv, int value)
 int cnss_get_host_sol_value(struct cnss_plat_data *plat_priv)
 {
 	struct cnss_sol_gpio *sol_gpio = &plat_priv->sol_gpio;
+
+	if (plat_priv->device_id == FIG_DEVICE_ID) {
+		cnss_pr_info("Reject setting normal host sol for: 0x%lx\n",
+			     plat_priv->device_id);
+		return -EINVAL;
+	}
 
 	if (sol_gpio->host_sol_gpio < 0)
 		return -EINVAL;
