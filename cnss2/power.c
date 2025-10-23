@@ -963,6 +963,12 @@ int cnss_get_pinctrl(struct cnss_plat_data *plat_priv)
 	}
 
 	if (of_find_property(dev->of_node, WLAN_SW_CTRL_GPIO, NULL)) {
+		pinctrl_info->wlan_sw_ctrl_gpio = of_get_named_gpio(dev->of_node,
+								    WLAN_SW_CTRL_GPIO,
+								    0);
+		cnss_pr_dbg("WLAN Switch control GPIO: %d\n",
+			    pinctrl_info->wlan_sw_ctrl_gpio);
+
 		pinctrl_info->sw_ctrl_wl_cx =
 			pinctrl_lookup_state(pinctrl_info->pinctrl,
 					     "sw_ctrl_wl_cx");
@@ -978,6 +984,8 @@ int cnss_get_pinctrl(struct cnss_plat_data *plat_priv)
 				cnss_pr_err("Failed to select sw_ctrl_wl_cx state, err = %d\n",
 					    ret);
 		}
+	} else {
+		pinctrl_info->wlan_sw_ctrl_gpio = -EINVAL;
 	}
 
 	cnss_set_wakeup_cap_for_gpios(dev);
