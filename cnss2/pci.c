@@ -4904,12 +4904,6 @@ static int cnss_pci_suspend(struct device *dev)
 
 	cnss_pci_set_monitor_wake_intr(pci_priv, false);
 
-	if (plat_priv->device_id == FIG_DEVICE_ID) {
-		ret = cnss_set_cxpc(dev, CX_OFF);
-		if (ret < 0)
-			CNSS_ASSERT(0);
-	}
-
 	cnss_pr_info("WoW Entry. pcie_time_sync_offset = %llu",
 		     plat_priv->pcie_time_sync_offset);
 
@@ -4949,12 +4943,6 @@ static int cnss_pci_resume(struct device *dev)
 
 	if (!cnss_is_device_powered_on(pci_priv->plat_priv))
 		goto out;
-
-	if (plat_priv->device_id == FIG_DEVICE_ID) {
-		ret = cnss_set_cxpc(dev, CX_RET);
-		if (ret < 0)
-			CNSS_ASSERT(0);
-	}
 
 	if (!pci_priv->disable_pc) {
 		mutex_lock(&pci_priv->bus_lock);
@@ -5122,12 +5110,6 @@ static int cnss_pci_runtime_suspend(struct device *dev)
 	if (ret)
 		pci_priv->drv_connected_last = 0;
 
-	if (!ret && (plat_priv->device_id == FIG_DEVICE_ID)) {
-		ret = cnss_set_cxpc(dev, CX_OFF);
-		if (ret < 0)
-			CNSS_ASSERT(0);
-	}
-
 	cnss_pr_vdbg("Runtime suspend status: %d\n", ret);
 
 	return ret;
@@ -5157,12 +5139,6 @@ static int cnss_pci_runtime_resume(struct device *dev)
 	}
 
 	cnss_pr_vdbg("Runtime resume start\n");
-
-	if (plat_priv->device_id == FIG_DEVICE_ID) {
-		ret = cnss_set_cxpc(dev, CX_RET);
-		if (ret < 0)
-			CNSS_ASSERT(0);
-	}
 
 	driver_ops = pci_priv->driver_ops;
 	if (driver_ops && driver_ops->runtime_ops &&
