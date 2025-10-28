@@ -2409,5 +2409,67 @@
 #define HWIO_TQM_R0_TQM2SW0_RELEASE_RING_BASE_MSB_RING_SIZE_SHFT                                                          8
 #define HWIO_TQM_R0_TQM2SW0_RELEASE_RING_BASE_MSB_RING_BASE_ADDR_MSB_BMSK                                              0xff
 #define HWIO_TQM_R0_TQM2SW0_RELEASE_RING_BASE_MSB_RING_BASE_ADDR_MSB_SHFT                                                 0
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_ADDR(x)                                                             ((x) + 0x1710)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_PHYS(x)                                                             ((x) + 0x1710)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_OFFS                                                                (0x1710)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RMSK                                                                0xffffffff
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_POR                                                                 0x00060000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_POR_RMSK                                                            0xffffffff
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_ATTR                                                                             0x3
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_IN(x)            \
+                in_dword(HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_ADDR(x))
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_INM(x, m)            \
+                in_dword_masked(HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_ADDR(x), m)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_OUT(x, v)            \
+                out_dword(HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_ADDR(x),v)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_OUTM(x,m,v) \
+                out_dword_masked_ns(HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_ADDR(x),m,v,HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_IN(x))
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_7_BMSK                                             0xf0000000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_7_SHFT                                                     28
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_6_BMSK                                              0xf000000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_6_SHFT                                                     24
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_5_BMSK                                               0xf00000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_5_SHFT                                                     20
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_4_BMSK                                                0xf0000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_4_SHFT                                                     16
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_3_BMSK                                                 0xf000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_3_SHFT                                                     12
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_2_BMSK                                                  0xf00
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_2_SHFT                                                      8
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_1_BMSK                                                   0xf0
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_1_SHFT                                                      4
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_0_BMSK                                                    0xf
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_0_RBM_RING_MAPPING_0_SHFT                                                      0
 
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_ADDR(x)                                                             ((x) + 0x1714)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_PHYS(x)                                                             ((x) + 0x1714)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_OFFS                                                                (0x1714)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RMSK                                                                0xffffffff
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_POR                                                                 0x00060000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_POR_RMSK                                                            0xffffffff
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_ATTR                                                                             0x3
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_IN(x)            \
+                in_dword(HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_ADDR(x))
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_INM(x, m)            \
+                in_dword_masked(HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_ADDR(x), m)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_OUT(x, v)            \
+                out_dword(HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_ADDR(x),v)
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_OUTM(x,m,v) \
+                out_dword_masked_ns(HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_ADDR(x),m,v,HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_IN(x))
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_15_BMSK                                            0xf0000000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_15_SHFT                                                    28
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_14_BMSK                                             0xf000000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_14_SHFT                                                    24
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_13_BMSK                                              0xf00000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_13_SHFT                                                    20
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_12_BMSK                                               0xf0000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_12_SHFT                                                    16
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_11_BMSK                                                0xf000
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_11_SHFT                                                    12
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_10_BMSK                                                 0xf00
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_10_SHFT                                                     8
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_9_BMSK                                                   0xf0
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_9_SHFT                                                      4
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_8_BMSK                                                    0xf
+#define HWIO_REO_R0_RBM_DESTINATION_RING_CTRL_IX_1_RBM_RING_MAPPING_8_SHFT                                                      0
 #endif /* WCSS_SEQ_HWIOREG_UMAC_H */
