@@ -117,7 +117,7 @@ def _define_modules_for_target_variant(target, variant):
                ],
         })
 
-        if target != "autogvm" and target != "x1e80100" and target != "sdxkova":
+        if target != "autogvm" and target != "x1e80100" and target != "sdxkova" and target != "art":
             deps += select({
                   "//build/qcom_build_extensions:qtisocrepo_true": [
                     "//vendor/qcom/opensource/securemsm-kernel:{}_smcinvoke_dlkm".format(tv),
