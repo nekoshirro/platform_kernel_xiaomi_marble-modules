@@ -88,7 +88,7 @@
 #define CNSS_CAL_START_PROBE_WAIT_MS	500
 #define CNSS_TIME_SYNC_PERIOD_INVALID	0xFFFFFFFF
 #define CPUMASK_ARRAY_SIZE		2
-#define MAX_SYSFS_USER_COMMAND_SIZE_LENGTH (5)
+#define MAX_SYSFS_USER_COMMAND_SIZE_LENGTH 5
 #define XDUMP_TIMEOUT_MS	20000
 #if IS_ENABLED(CONFIG_CNSS2_DIRECT_CX_SDAM)
 #define NOM_VOLTAGE			0x37A /* 890mV */
@@ -6272,7 +6272,7 @@ static ssize_t tme_opt_file_download_store(struct device *dev,
 					const char *buf, size_t count)
 {
 	struct cnss_plat_data *plat_priv = dev_get_drvdata(dev);
-	char cmd[MAX_SYSFS_USER_COMMAND_SIZE_LENGTH];
+	char cmd[MAX_SYSFS_USER_COMMAND_SIZE_LENGTH + 1];
 
 	if (count > MAX_SYSFS_USER_COMMAND_SIZE_LENGTH) {
 		cnss_pr_err("Cmd length is larger than %zu bytes, count: %zu ",
@@ -6280,7 +6280,7 @@ static ssize_t tme_opt_file_download_store(struct device *dev,
 
 		return -EINVAL;
 	}
-	if (sscanf(buf, "%s", cmd) != 1)
+	if (sscanf(buf, "%" __stringify(MAX_SYSFS_USER_COMMAND_SIZE_LENGTH) "s", cmd) != 1)
 		return -EINVAL;
 
 	if (!test_bit(CNSS_FW_READY, &plat_priv->driver_state)) {
