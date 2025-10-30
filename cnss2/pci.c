@@ -8187,6 +8187,29 @@ static void cnss_pci_set_mhi_event_config_for_one_msi(void)
 }
 #endif
 
+#ifdef CONFIG_QLI_MHI
+static void cnss_set_standard_elf(struct cnss_pci_data *pci_priv)
+{
+	bool is_standard_elf;
+
+	switch (pci_priv->device_id) {
+	case PEACH_DEVICE_ID:
+	case COLOGNE_DEVICE_ID:
+	case FIG_DEVICE_ID:
+		is_standard_elf = true;
+		break;
+	default:
+		is_standard_elf = false;
+	}
+
+	pci_priv->mhi_ctrl->standard_elf_image = is_standard_elf;
+}
+#else
+static inline void cnss_set_standard_elf(struct cnss_pci_data *pci_priv)
+{
+}
+#endif
+
 #if IS_ENABLED(CONFIG_MHI_BUS_MISC)
 static int cnss_mhi_pm_runtime_get_sync(struct mhi_controller *mhi_ctrl)
 {
@@ -8236,11 +8259,13 @@ static void cnss_mhi_misc_init(struct cnss_pci_data *pci_priv,
 	mhi_ctrl->runtime_get_sync = cnss_mhi_pm_runtime_get_sync;
 	mhi_ctrl->runtime_put_autosuspend = cnss_mhi_pm_runtime_put_autosuspend;
 	mhi_ctrl->tme_supported_image = cnss_is_tme_supported(pci_priv);
+	cnss_set_standard_elf(pci_priv);
 }
 #else
 static inline void cnss_mhi_misc_init(struct cnss_pci_data *pci_priv,
 				      struct mhi_controller *mhi_ctrl)
 {
+	cnss_set_standard_elf(pci_priv);
 }
 #endif
 
