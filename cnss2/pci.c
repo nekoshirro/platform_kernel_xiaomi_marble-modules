@@ -4016,6 +4016,7 @@ static int cnss_qca6290_powerup(struct cnss_pci_data *pci_priv)
 	bool mhi_force_power_off = false;
 	int retry = 0, bt_en_gpio = plat_priv->pinctrl_info.bt_en_gpio;
 	int sw_ctrl_gpio = plat_priv->pinctrl_info.sw_ctrl_gpio;
+	int wlan_sw_ctrl_gpio = plat_priv->pinctrl_info.wlan_sw_ctrl_gpio;
 
 	if (!pci_priv->mhi_ctrl) {
 		cnss_pr_err("mhi not initiated, exit\n", ret);
@@ -4058,8 +4059,9 @@ retry:
 	ret = cnss_resume_pci_link(pci_priv);
 	if (ret) {
 		cnss_pr_err("Failed to resume PCI link, err = %d\n", ret);
-		cnss_pr_dbg("Value of SW_CTRL GPIO: %d\n",
-			    cnss_get_input_gpio_value(plat_priv, sw_ctrl_gpio));
+		cnss_pr_dbg("Values of SW_CTRL GPIO: %d WLAN_SW_CTRL_GPIO: %d \n",
+			    cnss_get_input_gpio_value(plat_priv, sw_ctrl_gpio),
+			    cnss_get_input_gpio_value(plat_priv, wlan_sw_ctrl_gpio));
 		if (test_bit(IGNORE_PCI_LINK_FAILURE,
 			     &plat_priv->ctrl_params.quirks)) {
 			cnss_pr_dbg("Ignore PCI link resume failure\n");
