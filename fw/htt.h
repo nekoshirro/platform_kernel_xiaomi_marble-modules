@@ -6363,10 +6363,10 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
         HTT_CHECK_SET_VAL(HTT_RX_RING_SELECTION_CFG_RX_HDR_LEN_CHK, _val); \
         ((_var) |= (((_val) << \
             HTT_RX_RING_SELECTION_CFG_RX_HDR_LEN_S) & \
-            HTT_RX_RING_SELECTION_CFG_RX_HDR_LEN_M); \
+            HTT_RX_RING_SELECTION_CFG_RX_HDR_LEN_M)); \
         ((_var) |= (((_val) << \
             (HTT_RX_RING_SELECTION_CFG_RX_HDR_LEN_EXT_S-2)) & \
-            HTT_RX_RING_SELECTION_CFG_RX_HDR_LEN_EXT_M); \
+            HTT_RX_RING_SELECTION_CFG_RX_HDR_LEN_EXT_M)); \
     } while(0)
 
 #define HTT_RX_RING_SELECTION_CFG_RXPCU_FILTER_M               0x08000000
