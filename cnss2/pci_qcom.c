@@ -415,6 +415,18 @@ int cnss_set_pci_link(struct cnss_pci_data *pci_priv, bool link_up)
 	return __cnss_set_pci_link(pci_priv, link_up);
 }
 
+int cnss_set_pci_pwrctrl(struct cnss_pci_data *pci_priv, bool power_on)
+{
+	struct cnss_plat_data *plat_priv = pci_priv->plat_priv;
+
+	if (!plat_priv->rc_pm_control) {
+		cnss_pr_dbg("RC PM is disabled, skipping power control\n");
+		return 0;
+	}
+
+	return __cnss_set_pci_link(pci_priv, power_on);
+}
+
 int cnss_pci_prevent_l1(struct device *dev)
 {
 	struct pci_dev *pci_dev = to_pci_dev(dev);

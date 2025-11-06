@@ -1921,6 +1921,12 @@ int cnss_suspend_pci_link(struct cnss_pci_data *pci_priv)
 	/* Always do PCIe L2 suspend during power off/PCIe link recovery */
 	pci_priv->drv_connected_last = 0;
 
+	ret = cnss_set_pci_pwrctrl(pci_priv, false);
+	if (ret) {
+		pci_priv->pci_link_state = PCI_LINK_DOWN;
+		goto out;
+	}
+
 	ret = cnss_set_pci_link(pci_priv, PCI_LINK_DOWN);
 	if (ret)
 		cnss_pr_err("Failed to set pci link down, ret = %d\n", ret);
@@ -1948,6 +1954,20 @@ int cnss_resume_pci_link(struct cnss_pci_data *pci_priv)
 
 	if (pci_priv->pci_link_state == PCI_LINK_UP) {
 		cnss_pr_info("PCI link is already resumed\n");
+		goto out;
+	}
+
+	/*
+	 * In rc_pm_control enabled cases, pci_pwrctrl takes
+	 * care of powering on PCIe link and set_pci_link()
+	 * will be dummy NOP. Inverse in rc_pm_control disabled
+	 * cases ex: Previous platforms.
+	 */
+	ret = cnss_set_pci_pwrctrl(pci_priv, true);
+	if (ret) {
+		ret = -EAGAIN;
+		cnss_pci_update_link_event(pci_priv,
+					   BUS_EVENT_PCI_LINK_RESUME_FAIL, NULL);
 		goto out;
 	}
 
