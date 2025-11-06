@@ -5167,10 +5167,16 @@ static int cnss_pci_runtime_suspend(struct device *dev)
 
 	driver_ops = pci_priv->driver_ops;
 	if (driver_ops && driver_ops->runtime_ops &&
-	    driver_ops->runtime_ops->runtime_suspend)
+	    driver_ops->runtime_ops->runtime_suspend) {
 		ret = driver_ops->runtime_ops->runtime_suspend(pci_dev);
-	else
+		if (plat_priv->rc_pm_control && !ret &&
+		    !cnss_pci_get_auto_suspended(pci_priv)) {
+			cnss_pr_vdbg("Auto suspend fail change status to EAGAIN\n");
+			ret = -EAGAIN;
+		}
+	} else {
 		ret = cnss_auto_suspend(dev);
+	}
 
 	if (ret)
 		pci_priv->drv_connected_last = 0;
@@ -5205,6 +5211,17 @@ static int cnss_pci_runtime_resume(struct device *dev)
 
 	cnss_pr_vdbg("Runtime resume start\n");
 
+	if (test_bit(CNSS_INTERNAL_RESUME, &plat_priv->ctrl_params.quirks)) {
+		/*
+		 * In cases where Resume is triggered internally by CNSS Client
+		 * Host driver involvement is not required to execute WOW receipe.
+		 * So auto_resume is being called only to resume the PCIe link
+		 */
+		cnss_pr_vdbg("Internal resume trigger\n");
+		ret = cnss_auto_resume(dev);
+		goto out;
+	}
+
 	driver_ops = pci_priv->driver_ops;
 	if (driver_ops && driver_ops->runtime_ops &&
 	    driver_ops->runtime_ops->runtime_resume) {
@@ -5219,6 +5236,8 @@ static int cnss_pci_runtime_resume(struct device *dev)
 	} else {
 		ret = cnss_auto_resume(dev);
 	}
+
+out:
 	cnss_pr_vdbg("Runtime resume status: %d\n", ret);
 
 	return ret;
@@ -7604,6 +7623,7 @@ int cnss_pci_collect_dump_info(struct cnss_pci_data *pci_priv, bool in_panic)
 	struct image_info *fw_image, *rddm_image;
 	struct cnss_fw_mem *fw_mem = plat_priv->fw_mem;
 	int ret = 0, i, j;
+	bool rtpm_resume_vote = false;
 
 	if (test_bit(CNSS_DEV_ERR_NOTIFY, &plat_priv->driver_state) &&
 	    !test_bit(CNSS_IN_PANIC, &plat_priv->driver_state))
@@ -7633,9 +7653,24 @@ int cnss_pci_collect_dump_info(struct cnss_pci_data *pci_priv, bool in_panic)
 				mutex_unlock(&pci_priv->bus_lock);
 				goto out;
 			}
-			if (cnss_pci_resume_bus(pci_priv)) {
-				mutex_unlock(&pci_priv->bus_lock);
-				goto out;
+			if (plat_priv->rc_pm_control) {
+				set_bit(CNSS_INTERNAL_RESUME,
+					&plat_priv->ctrl_params.quirks);
+				rtpm_resume_vote = true;
+				if (cnss_pci_pm_runtime_get_sync(pci_priv,
+								 RTPM_ID_CNSS) < 0) {
+					clear_bit(CNSS_INTERNAL_RESUME,
+						  &plat_priv->ctrl_params.quirks);
+					mutex_unlock(&pci_priv->bus_lock);
+					goto out;
+				}
+				clear_bit(CNSS_INTERNAL_RESUME,
+					  &plat_priv->ctrl_params.quirks);
+			} else {
+				if (cnss_pci_resume_bus(pci_priv)) {
+					mutex_unlock(&pci_priv->bus_lock);
+					goto out;
+				}
 			}
 		}
 		mutex_unlock(&pci_priv->bus_lock);
@@ -7751,6 +7786,11 @@ int cnss_pci_collect_dump_info(struct cnss_pci_data *pci_priv, bool in_panic)
 skip_dump:
 	complete(&plat_priv->rddm_complete);
 out:
+	if (rtpm_resume_vote) {
+		cnss_pci_pm_runtime_mark_last_busy(pci_priv);
+		cnss_pci_pm_runtime_put_autosuspend(pci_priv, RTPM_ID_CNSS);
+	}
+
 	if (!in_panic && plat_priv->xdump_helper.dumping_bt_over_wl) {
 		plat_priv->xdump_helper.dumping_bt_over_wl = 0;
 		cnss_genl_send_xdump_bt_over_wl_resp(ret);
