@@ -4965,6 +4965,19 @@ static int cnss_pci_suspend(struct device *dev)
 		mutex_unlock(&pci_priv->bus_lock);
 		if (ret)
 			goto resume_driver;
+	} else if (plat_priv->rc_pm_control) {
+		/*
+		 * Saving PCI state is called, so that this forces
+		 * PCIe RC driver to skip PCIe link off during its
+		 * PM OPS execution and make sure PCIe link active
+		 * in disable_pc case
+		 */
+		cnss_pr_dbg("disable_pc enabled, saving pci state\n");
+		ret = pci_save_state(pci_dev);
+		if (ret) {
+			cnss_pr_err("failed to save pci state\n");
+			goto clear_flag;
+		}
 	}
 
 	cnss_pci_set_monitor_wake_intr(pci_priv, false);
