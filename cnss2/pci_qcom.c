@@ -358,7 +358,7 @@ static int cnss_set_pci_link_status(struct cnss_pci_data *pci_priv,
 	return ret;
 }
 
-int cnss_set_pci_link(struct cnss_pci_data *pci_priv, bool link_up)
+static int __cnss_set_pci_link(struct cnss_pci_data *pci_priv, bool link_up)
 {
 	int ret = 0, retry = 0;
 	struct cnss_plat_data *plat_priv;
@@ -401,6 +401,18 @@ retry:
 	}
 
 	return ret;
+}
+
+int cnss_set_pci_link(struct cnss_pci_data *pci_priv, bool link_up)
+{
+	struct cnss_plat_data *plat_priv = pci_priv->plat_priv;
+
+	if (plat_priv->rc_pm_control) {
+		cnss_pr_dbg("RC PM is enabled, skipping link pm\n");
+		return 0;
+	}
+
+	return __cnss_set_pci_link(pci_priv, link_up);
 }
 
 int cnss_pci_prevent_l1(struct device *dev)
