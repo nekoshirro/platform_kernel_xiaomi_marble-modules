@@ -779,6 +779,7 @@ struct cnss_plat_data {
 #endif
 	struct cnss_wlan_host_param *host_param;
 	struct cnss_wlan_tsf_info tsf_info;
+	bool rc_pm_control;
 };
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0))
