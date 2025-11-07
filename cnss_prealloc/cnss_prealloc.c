@@ -82,7 +82,6 @@ struct cnss_pool {
 
 /* size, min pool reserve, name, memorypool handler, cache handler*/
 static struct cnss_pool cnss_pools_default[] = {
-	{8 * 1024, 16, "cnss-pool-8k", NULL, NULL, NULL},
 	{16 * 1024, 16, "cnss-pool-16k", NULL, NULL, NULL},
 	{32 * 1024, 22, "cnss-pool-32k", NULL, NULL, NULL},
 	{64 * 1024, 38, "cnss-pool-64k", NULL, NULL, NULL},
@@ -91,7 +90,6 @@ static struct cnss_pool cnss_pools_default[] = {
 };
 
 static struct cnss_pool cnss_pools_adrastea[] = {
-	{8 * 1024, 2, "cnss-pool-8k", NULL, NULL, NULL},
 	{16 * 1024, 10, "cnss-pool-16k", NULL, NULL, NULL},
 	{32 * 1024, 8, "cnss-pool-32k", NULL, NULL, NULL},
 	{64 * 1024, 4, "cnss-pool-64k", NULL, NULL, NULL},
@@ -99,7 +97,6 @@ static struct cnss_pool cnss_pools_adrastea[] = {
 };
 
 static struct cnss_pool cnss_pools_wcn6750[] = {
-	{8 * 1024, 2, "cnss-pool-8k", NULL, NULL, NULL},
 	{16 * 1024, 8, "cnss-pool-16k", NULL, NULL, NULL},
 	{32 * 1024, 11, "cnss-pool-32k", NULL, NULL, NULL},
 	{64 * 1024, 15, "cnss-pool-64k", NULL, NULL, NULL},
@@ -107,12 +104,11 @@ static struct cnss_pool cnss_pools_wcn6750[] = {
 };
 
 static struct cnss_pool cnss_pools_wcn7750[] = {
-	{8 * 1024, 16, "cnss-pool-8k", NULL, NULL},
-	{16 * 1024, 16, "cnss-pool-16k", NULL, NULL},
-	{32 * 1024, 22, "cnss-pool-32k", NULL, NULL},
-	{64 * 1024, 38, "cnss-pool-64k", NULL, NULL},
-	{128 * 1024, 10, "cnss-pool-128k", NULL, NULL},
-	{256 * 1024, 2, "cnss-pool-256k", NULL, NULL},
+	{16 * 1024, 16, "cnss-pool-16k", NULL, NULL, NULL},
+	{32 * 1024, 22, "cnss-pool-32k", NULL, NULL, NULL},
+	{64 * 1024, 38, "cnss-pool-64k", NULL, NULL, NULL},
+	{128 * 1024, 10, "cnss-pool-128k", NULL, NULL, NULL},
+	{256 * 1024, 2, "cnss-pool-256k", NULL, NULL, NULL},
 };
 
 struct cnss_pool *cnss_pools;
@@ -130,7 +126,7 @@ bool mempool_initialization_done;
  */
 static inline size_t cnss_pool_alloc_threshold(void)
 {
-	return cnss_pools[0].size;
+	return WCNSS_PRE_ALLOC_GET_THRESHOLD;
 }
 
 /**
@@ -371,7 +367,7 @@ void *wcnss_prealloc_get(size_t size)
 	else
 		gfp_mask |= GFP_KERNEL;
 
-	if (size >= cnss_pool_alloc_threshold()) {
+	if (size > cnss_pool_alloc_threshold()) {
 
 		for (i = 0; i < cnss_prealloc_pool_size; i++) {
 			if (cnss_pools[i].size >= size && cnss_pools[i].mp) {
@@ -398,7 +394,7 @@ void *wcnss_prealloc_get(size_t size)
 		mem = NULL;
 	}
 
-	if (!mem && size >= cnss_pool_alloc_threshold()) {
+	if (!mem && size > cnss_pool_alloc_threshold()) {
 		pr_err("cnss_prealloc: not available for size %zu, flag %x\n",
 		       size, gfp_mask);
 	}
