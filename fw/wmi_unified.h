@@ -5106,8 +5106,16 @@ typedef struct {
      *      country supports SP regulatory rules.
      *      Refer to the below defintions of WMI_RSRC_CFG_HOST_SERVICE_FLAG
      *      AFC_TRIGGER_ON_DEFAULT_CC_EVENT_GET and _SET macros.
+     *  Bit 23
+     *      This bit will set by host to inform FW that direct refill to
+     *      SW2RxDMA ring is supported by the host and the ring which is
+     *      directly refilled by HOST will be indicated in the
+     *      HTT_H2T_MSG_TYPE_SRING_SETUP and FW should refill the Rx buffers
+     *      to the secondary refill ring.
+     *      Refer to the below definitions of WMI_RSRC_CFG_HOST_SERVICE_FLAG
+     *      DIRECT_REFILL_SUPPORT_GET and _SET macros.
      *
-     *  Bits 31:23 - Reserved
+     *  Bits 31:24 - Reserved
      */
     A_UINT32 host_service_flags;
 
@@ -5685,6 +5693,12 @@ typedef struct {
         WMI_GET_BITS(host_service_flags, 22, 1)
 #define WMI_RSRC_CFG_HOST_SERVICE_FLAG_AFC_TRIGGER_ON_DEFAULT_CC_EVENT_SET(host_service_flags, val) \
         WMI_SET_BITS(host_service_flags, 22, 1, val)
+
+/* This bit is used to inform FW that HOST supports direct Rx buffers refill to the SW2RxDMA ring*/
+#define WMI_RSRC_CFG_HOST_SERVICE_FLAG_DIRECT_REFILL_SUPPORT_GET(host_service_flags) \
+         WMI_GET_BITS(host_service_flags, 23, 1)
+#define WMI_RSRC_CFG_HOST_SERVICE_FLAG_DIRECT_REFILL_SUPPORT_SET(host_service_flags, val) \
+         WMI_SET_BITS(host_service_flags, 23, 1, val)
 
 
 #define WMI_RSRC_CFG_CARRIER_CFG_CHARTER_ENABLE_GET(carrier_config) \
@@ -38726,8 +38740,8 @@ typedef struct {
      (WMI_GET_BITS(uhr_cap_mac[1], 0, 2) << 3))
 #define WMI_UHRCAP_MAC_UPDATE_IND_TIM_SET(uhr_cap_mac, value) \
     do { \
-        WMI_SET_BITS(uhr_cap_mac[0], 29, 3, value & 0x7) \
-        WMI_SET_BITS(uhr_cap_mac[1], 0, 2, ((value & 0x18) >> 3)) \
+        WMI_SET_BITS(uhr_cap_mac[0], 29, 3, value & 0x7); \
+        WMI_SET_BITS(uhr_cap_mac[1], 0, 2, ((value & 0x18) >> 3)); \
     } while (0)
 
 /* Bit 34: Bounded ESS */
@@ -38785,32 +38799,32 @@ typedef struct {
 #define WMI_CAP_EXT2_NPCA_ENABLED_GET(npca_capability) \
     WMI_GET_BITS(npca_capability, 0, 1)
 #define WMI_CAP_EXT2_NPCA_ENABLED_SET(npca_capability, value) \
-    WMI_sET_BITS(npca_capability, 0, 1, value)
+    WMI_SET_BITS(npca_capability, 0, 1, value)
 
 #define WMI_CAP_EXT2_NPCA_MIN_DUR_THRESHOLD_GET(npca_capability) \
     WMI_GET_BITS(npca_capability, 1, 4)
 #define WMI_CAP_EXT2_NPCA_MIN_DUR_THRESHOLD_SET(npca_capability, value) \
-    WMI_sET_BITS(npca_capability, 1, 5, value)
+    WMI_SET_BITS(npca_capability, 1, 5, value)
 
 #define WMI_CAP_EXT2_NPCA_SWITCH_DELAY_GET(npca_capability) \
     WMI_GET_BITS(npca_capability, 5, 6)
 #define WMI_CAP_EXT2_NPCA_SWITCH_DELAY_SET(npca_capability, value) \
-    WMI_sET_BITS(npca_capability, 5, 6, value)
+    WMI_SET_BITS(npca_capability, 5, 6, value)
 
 #define WMI_CAP_EXT2_NPCA_SWITCH_BACK_DELAY_GET(npca_capability) \
     WMI_GET_BITS(npca_capability, 11, 6)
 #define WMI_CAP_EXT2_NPCA_SWITCH_BACK_DELAY_SET(npca_capability, value) \
-    WMI_sET_BITS(npca_capability, 11, 6, value)
+    WMI_SET_BITS(npca_capability, 11, 6, value)
 
 #define WMI_CAP_EXT2_NPCA_QSRC_GET(npca_capability) \
     WMI_GET_BITS(npca_capability, 17, 2)
 #define WMI_CAP_EXT2_NPCA_QSRC_SET(npca_capability, value) \
-    WMI_sET_BITS(npca_capability, 17, 2, value)
+    WMI_SET_BITS(npca_capability, 17, 2, value)
 
 #define WMI_CAP_EXT2_NPCA_MOPLEN_GET(npca_capability) \
     WMI_GET_BITS(npca_capability, 19, 1)
 #define WMI_CAP_EXT2_NPCA_MOPLEN_SET(npca_capability, value) \
-    WMI_sET_BITS(npca_capability, 19, 1, value)
+    WMI_SET_BITS(npca_capability, 19, 1, value)
 
 
 typedef struct {
