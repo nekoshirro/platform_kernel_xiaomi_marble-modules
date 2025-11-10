@@ -925,6 +925,7 @@ int cnss_set_cx_voltage_corner(struct cnss_plat_data *plat_priv,
 			       enum cx_voltage_corners vc, u16 arg);
 u8 *cnss_debug_direct_cx(struct cnss_plat_data *plat_priv);
 int cnss_cx_voltage_corners_init(struct cnss_plat_data *plat_priv);
+int cnss_xo_trim_perform(struct cnss_xo_trim_config *conf);
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0))
 static inline int cnss_timer_delete(struct timer_list *timer)

@@ -1926,7 +1926,7 @@ static void cnss_xo_trim_deinit(struct cnss_plat_data *plat_priv)
  *
  * Return: 0 on success, errno otherwise
  */
-static int cnss_xo_trim_perform(struct cnss_xo_trim_config *xo_trim_conf)
+int cnss_xo_trim_perform(struct cnss_xo_trim_config *xo_trim_conf)
 {
 	int ret;
 

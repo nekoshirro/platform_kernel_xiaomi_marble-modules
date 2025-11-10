@@ -960,6 +960,7 @@ int cnss_wlfw_bdf_dnld_send_sync(struct cnss_plat_data *plat_priv,
 	const u8 *temp;
 	unsigned int remaining;
 	int ret = 0;
+	int xo_ret = 0;
 
 	cnss_pr_dbg("Sending QMI_WLFW_BDF_DOWNLOAD_REQ_V01 message for bdf_type: %d (%s), state: 0x%lx\n",
 		    bdf_type, cnss_bdf_type_to_str(bdf_type), plat_priv->driver_state);
@@ -1078,6 +1079,22 @@ int cnss_wlfw_bdf_dnld_send_sync(struct cnss_plat_data *plat_priv,
 			     plat_priv->cbc_file_download,
 			     resp->host_bdf_data & QMI_WLFW_RADIO_OFF_V01);
 	}
+
+	/* XO trim value handling */
+	if (resp->xo_trim_val_valid) {
+		plat_priv->xo_trim_conf.trim_val = resp->xo_trim_val;
+
+		ret = cnss_xo_trim_perform(&plat_priv->xo_trim_conf);
+		cnss_pr_dbg("XO‑trim: received %u, result %d (final %u)\n",
+			    resp->xo_trim_val, ret,
+				plat_priv->xo_trim_conf.trim_val);
+
+		xo_ret = cnss_wlfw_xo_trim_result_send_sync(plat_priv, ret);
+		if (xo_ret)
+			cnss_pr_err("XO‑trim result notify failed: %d\n",
+				xo_ret);
+	}
+
 	kfree(req);
 	kfree(resp);
 	return 0;
