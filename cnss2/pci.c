@@ -8742,6 +8742,11 @@ static bool cnss_should_suspend_pwroff(struct pci_dev *pci_dev)
 
 	return suspend_pwroff;
 }
+#elif defined(CONFIG_QLI_MHI)
+static bool cnss_should_suspend_pwroff(struct pci_dev *pci_dev)
+{
+	return false;
+}
 #else
 static bool cnss_should_suspend_pwroff(struct pci_dev *pci_dev)
 {
