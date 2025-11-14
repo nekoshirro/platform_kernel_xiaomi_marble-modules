@@ -378,7 +378,7 @@ static int cnss_wlfw_host_cap_send_sync(struct cnss_plat_data *plat_priv)
 	u64 iova_start = 0, iova_size = 0,
 	    iova_ipa_start = 0, iova_ipa_size = 0;
 	u64 feature_list = 0, msi_addr, msi_size;
-	u32 cx_mode_dt, msi_addr_low = 0, msi_addr_high = 0;
+	u32 msi_addr_low = 0, msi_addr_high = 0;
 
 	cnss_pr_dbg("Sending host capability message, state: 0x%lx\n",
 		    plat_priv->driver_state);
@@ -475,17 +475,19 @@ static int cnss_wlfw_host_cap_send_sync(struct cnss_plat_data *plat_priv)
 	}
 
 	if (plat_priv->device_id == FIG_DEVICE_ID) {
-		ret = of_property_read_u32(plat_priv->plat_dev->dev.of_node,
-					   "cx-mode", &cx_mode_dt);
-		if (ret) {
-			cnss_pr_err("could not get cx mode\n");
-			goto out;
+		if (plat_priv->cx_mode == CX_DATA_PIN_PDC) {
+			ret = cnss_set_bidirectional_ack_pdc(plat_priv,
+							     ACK_GEN_ENABLED);
+			if (ret < 0) {
+				cnss_pr_err("Failed to set bi-d ack mode\n");
+				goto out;
+			}
 		}
 
 		req->target_attachment_valid = 1;
-		if (cx_mode_dt == CX_DATA_PIN_PMIC)
+		if (plat_priv->cx_mode == CX_DATA_PIN_PMIC)
 			req->target_attachment = WLFW_PMIC_V01;
-		else if (cx_mode_dt == CX_DATA_PIN_PDC)
+		else if (plat_priv->cx_mode == CX_DATA_PIN_PDC)
 			req->target_attachment = WLFW_PDC_V01;
 		else
 			req->target_attachment = WLFW_THIRD_PARTY_V01;
