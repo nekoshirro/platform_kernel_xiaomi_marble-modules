@@ -1919,7 +1919,7 @@ int cnss_suspend_pci_link(struct cnss_pci_data *pci_priv)
 
 	ret = cnss_set_pci_link(pci_priv, PCI_LINK_DOWN);
 	if (ret)
-		goto out;
+		cnss_pr_err("Failed to set pci link down, ret = %d\n", ret);
 
 	pci_priv->pci_link_state = PCI_LINK_DOWN;
 
