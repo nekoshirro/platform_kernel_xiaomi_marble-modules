@@ -6813,8 +6813,15 @@ static void cnss_read_tsf_irq_ts(struct cnss_wlan_tsf_info *tsf_info)
 	if (!data_val)
 		return;
 
+	if (data_val * 10 < data_val) {
+		do_div(data_val, TIME_CLOCK_FREQ_HZ / 100000);
+		tsf_info->host_time_us = data_val * 10;
+		return;
+	}
+
+	data_val = data_val * 10;
 	do_div(data_val, TIME_CLOCK_FREQ_HZ / 100000);
-	tsf_info->host_time_us = data_val * 10;
+	tsf_info->host_time_us = data_val;
 }
 
 static irqreturn_t cnss_wlan_tsf_capture_threaded_handler(int irq, void *ctx)
