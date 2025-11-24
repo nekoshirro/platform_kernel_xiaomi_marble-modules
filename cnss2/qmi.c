@@ -3339,6 +3339,12 @@ static void cnss_wlfw_fw_mem_file_save_ind_cb(struct qmi_handle *qmi_wlfw,
 		cnss_pr_err("Spurious indication\n");
 		return;
 	}
+
+	if (!test_bit(CNSS_DAEMON_CONNECTED, &plat_priv->driver_state)) {
+		cnss_pr_dbg("CNSS Daemon not connected, ignore qdss save indication\n");
+		return;
+	}
+
 	cnss_pr_dbg_buf("QMI fw_mem_file_save: source: %d  mem_seg: %d type: %u len: %u\n",
 			ind_msg->source, ind_msg->mem_seg_valid,
 			ind_msg->mem_seg[0].type, ind_msg->mem_seg_len);
