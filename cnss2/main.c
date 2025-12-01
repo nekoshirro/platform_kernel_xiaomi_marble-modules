@@ -7161,6 +7161,14 @@ cnss_use_nv_mac(struct cnss_plat_data *plat_priv)
 				     "use-nv-mac");
 }
 
+static void cnss_get_rc_pm_control_info(struct cnss_plat_data *plat_priv)
+{
+	plat_priv->rc_pm_control =
+		of_property_read_bool(plat_priv->plat_dev->dev.of_node,
+				      "wlan-rc-pm-control");
+	cnss_pr_dbg("rc_pm_control: %d\n", plat_priv->rc_pm_control);
+}
+
 static int cnss_get_dev_cfg_node(struct cnss_plat_data *plat_priv)
 {
 	struct device_node *child;
@@ -7657,6 +7665,7 @@ static int cnss_probe(struct platform_device *plat_dev)
 
 	plat_priv->bus_type = cnss_get_bus_type(plat_priv);
 	plat_priv->use_nv_mac = cnss_use_nv_mac(plat_priv);
+	cnss_get_rc_pm_control_info(plat_priv);
 	cnss_set_plat_priv(plat_dev, plat_priv);
 	cnss_set_device_name(plat_priv);
 	platform_set_drvdata(plat_dev, plat_priv);
