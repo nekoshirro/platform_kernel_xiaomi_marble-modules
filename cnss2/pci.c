@@ -5705,10 +5705,20 @@ EXPORT_SYMBOL(cnss_pci_force_wake_release);
 
 int cnss_pci_qmi_send_get(struct cnss_pci_data *pci_priv)
 {
+	struct cnss_plat_data *plat_priv;
 	int ret = 0;
 
 	if (!pci_priv)
 		return -ENODEV;
+
+	plat_priv = pci_priv->plat_priv;
+	if (!plat_priv)
+		return -ENODEV;
+
+	if (plat_priv->rc_pm_control) {
+		cnss_pr_err("QMI stats not supported in rc_pm_ctrl\n");
+		return -EINVAL;
+	}
 
 	mutex_lock(&pci_priv->bus_lock);
 	if (cnss_pci_get_auto_suspended(pci_priv) &&
@@ -5724,10 +5734,20 @@ int cnss_pci_qmi_send_get(struct cnss_pci_data *pci_priv)
 
 int cnss_pci_qmi_send_put(struct cnss_pci_data *pci_priv)
 {
+	struct cnss_plat_data *plat_priv;
 	int ret = 0;
 
 	if (!pci_priv)
 		return -ENODEV;
+
+	plat_priv = pci_priv->plat_priv;
+	if (!plat_priv)
+		return -ENODEV;
+
+	if (plat_priv->rc_pm_control) {
+		cnss_pr_err("QMI stats not supported in rc_pm_ctrl\n");
+		return -EINVAL;
+	}
 
 	mutex_lock(&pci_priv->bus_lock);
 	if (pci_priv->qmi_send_usage_count)
