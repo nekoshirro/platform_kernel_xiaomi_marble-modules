@@ -6401,6 +6401,41 @@ static ssize_t user_config_show(struct device *dev,
 	return curr_len;
 }
 
+static ssize_t wcn_name_show(struct device *dev,
+				struct device_attribute *attr,
+				char *buf)
+{
+	struct cnss_plat_data *plat_priv = dev_get_drvdata(dev);
+	char device_name[MAX_FIRMWARE_NAME_LEN];
+	int i, j = 0;
+
+	if (!plat_priv)
+		return -ENODEV;
+
+	/* Check if PCI probe is done */
+	if (!test_bit(CNSS_PCI_PROBE_DONE, &plat_priv->driver_state)) {
+		cnss_pr_dbg("PCI probe not complete, cannot get device name\n");
+		return -EAGAIN;  /* Operation should be retried later */
+	}
+
+	memset(device_name, 0, sizeof(device_name));
+
+	/* Get the device_name name & Strip that trailing slash.
+	the sysfs node should expose folder name (e.g. "kiwi") */
+	cnss_bus_add_fw_prefix_name(plat_priv, device_name, "");
+
+	for (i = 0; device_name[i] != '\0'; i++) {
+		if (device_name[i] != '/')
+			device_name[j++] = device_name[i];
+	}
+	device_name[j] = '\0';
+
+	if (!device_name[0])
+		return -ENODEV;   /* nothing produced */
+
+	return scnprintf(buf, MAX_FIRMWARE_NAME_LEN, "%s\n", device_name);
+}
+
 static DEVICE_ATTR_WO(fs_ready);
 static DEVICE_ATTR_WO(shutdown);
 static DEVICE_ATTR_RW(recovery);
@@ -6413,6 +6448,7 @@ static DEVICE_ATTR_WO(hw_trace_override);
 static DEVICE_ATTR_WO(charger_mode);
 static DEVICE_ATTR_RW(time_sync_period);
 static DEVICE_ATTR_RW(user_config);
+static DEVICE_ATTR_RO(wcn_name);
 
 static struct attribute *cnss_attrs[] = {
 	&dev_attr_fs_ready.attr,
@@ -6427,6 +6463,7 @@ static struct attribute *cnss_attrs[] = {
 	&dev_attr_charger_mode.attr,
 	&dev_attr_time_sync_period.attr,
 	&dev_attr_user_config.attr,
+	&dev_attr_wcn_name.attr,
 	NULL,
 };
 
