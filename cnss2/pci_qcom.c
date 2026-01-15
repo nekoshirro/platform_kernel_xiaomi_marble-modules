@@ -660,7 +660,7 @@ int cnss_pci_get_iommu_addr(struct cnss_pci_data *pci_priv,
 }
 #endif
 
-int cnss_pci_init_smmuv3(struct cnss_pci_data *pci_priv)
+static int cnss_pci_init_smmuv3(struct cnss_pci_data *pci_priv)
 {
 	struct pci_dev *pci_dev = pci_priv->pci_dev;
 	int ret = 0;
