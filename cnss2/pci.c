@@ -5495,41 +5495,10 @@ int cnss_pci_force_wake_request_sync(struct device *dev, int timeout_us)
 }
 EXPORT_SYMBOL(cnss_pci_force_wake_request_sync);
 
+/* Obsolete API. To be removed later. */
 int cnss_pci_force_wake_request(struct device *dev)
 {
-	struct pci_dev *pci_dev = to_pci_dev(dev);
-	struct cnss_pci_data *pci_priv = cnss_get_pci_priv(pci_dev);
-	struct cnss_plat_data *plat_priv;
-	struct mhi_controller *mhi_ctrl;
-
-	if (!pci_priv)
-		return -ENODEV;
-
-	switch (pci_priv->device_id) {
-	case QCA6390_DEVICE_ID:
-	case QCA6490_DEVICE_ID:
-	case KIWI_DEVICE_ID:
-	case MANGO_DEVICE_ID:
-	case PEACH_DEVICE_ID:
-	case COLOGNE_DEVICE_ID:
-	case FIG_DEVICE_ID:
-		break;
-	default:
-		return 0;
-	}
-
-	mhi_ctrl = pci_priv->mhi_ctrl;
-	if (!mhi_ctrl)
-		return -EINVAL;
-
-	plat_priv = pci_priv->plat_priv;
-	if (!plat_priv)
-		return -ENODEV;
-
-	if (test_bit(CNSS_DEV_ERR_NOTIFY, &plat_priv->driver_state))
-		return -EAGAIN;
-
-	mhi_device_get(mhi_ctrl->mhi_dev);
+	cnss_pr_err("cnss_pci_force_wake_request: Obsolete API as no-op");
 
 	return 0;
 }
