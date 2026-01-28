@@ -587,8 +587,11 @@ void *wcnss_prealloc_get(size_t size)
 
 	if (in_interrupt() || !preemptible() || rcu_preempt_depth())
 		gfp_mask |= GFP_ATOMIC;
-	else
+	else {
 		gfp_mask |= GFP_KERNEL;
+		if (cnss_force_prealloc_pool)
+			gfp_mask &= ~__GFP_DIRECT_RECLAIM;
+	}
 
 	if (size > cnss_pool_alloc_threshold()) {
 
