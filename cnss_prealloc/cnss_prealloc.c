@@ -190,7 +190,7 @@ static inline void cnss_stack_track_deinit(struct cnss_pool *cnss_pool)
  * Return: 0 - success, otherwise error code.
  *
  */
-void *cnss_mempool_alloc(gfp_t gfp_mask, void *pool_data)
+static void *cnss_mempool_alloc(gfp_t gfp_mask, void *pool_data)
 {
 	if (!mempool_initialization_done || !cnss_force_prealloc_pool)
 		return mempool_alloc_slab(gfp_mask, pool_data);
