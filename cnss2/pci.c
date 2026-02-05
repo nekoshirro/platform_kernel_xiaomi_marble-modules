@@ -8357,7 +8357,7 @@ static void cnss_pci_set_mhi_event_config_for_one_msi(void)
 }
 #endif
 
-#ifdef CONFIG_QLI_MHI
+#ifdef CONFIG_QLI
 static void cnss_set_standard_elf(struct cnss_pci_data *pci_priv)
 {
 	bool is_standard_elf;
@@ -8884,7 +8884,7 @@ static bool cnss_should_suspend_pwroff(struct pci_dev *pci_dev)
 
 	return suspend_pwroff;
 }
-#elif defined(CONFIG_QLI_MHI)
+#elif defined(CONFIG_QLI)
 static bool cnss_should_suspend_pwroff(struct pci_dev *pci_dev)
 {
 	return false;
