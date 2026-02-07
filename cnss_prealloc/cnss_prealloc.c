@@ -132,6 +132,13 @@ static struct cnss_pool cnss_pools_wcn7750[] = {
 	{256 * 1024, 2, "cnss-pool-256k", NULL, NULL, NULL},
 };
 
+static struct cnss_pool cnss_pools_wcn6450[] = {
+	{16 * 1024, 14, "cnss-pool-16k", NULL, NULL, NULL},
+	{32 * 1024, 10, "cnss-pool-32k", NULL, NULL, NULL},
+	{64 * 1024, 8, "cnss-pool-64k", NULL, NULL, NULL},
+	{128 * 1024, 5, "cnss-pool-128k", NULL, NULL, NULL},
+};
+
 struct cnss_pool *cnss_pools;
 unsigned int cnss_prealloc_pool_size = ARRAY_SIZE(cnss_pools_default);
 spinlock_t pool_table_lock;
@@ -285,12 +292,10 @@ static void cnss_pool_deinit(void)
 
 static void cnss_assign_prealloc_pool(unsigned long device_id)
 {
-	pr_info("cnss_prealloc: assign cnss pool for device id 0x%lx", device_id);
 	cnss_force_prealloc_pool = false;
 
 	switch (device_id) {
 	case ADRASTEA_DEVICE_ID:
-		pr_info("cnss_prealloc: Force prealloc pool for adrastea");
 		cnss_force_prealloc_pool = true;
 		cnss_pools = cnss_pools_adrastea;
 		cnss_prealloc_pool_size = ARRAY_SIZE(cnss_pools_adrastea);
@@ -304,6 +309,10 @@ static void cnss_assign_prealloc_pool(unsigned long device_id)
 		cnss_prealloc_pool_size = ARRAY_SIZE(cnss_pools_wcn7750);
 		break;
 	case WCN6450_DEVICE_ID:
+		cnss_force_prealloc_pool = true;
+		cnss_pools = cnss_pools_wcn6450;
+		cnss_prealloc_pool_size = ARRAY_SIZE(cnss_pools_wcn6450);
+		break;
 	case QCA6390_DEVICE_ID:
 	case QCA6490_DEVICE_ID:
 	case MANGO_DEVICE_ID:
@@ -314,6 +323,9 @@ static void cnss_assign_prealloc_pool(unsigned long device_id)
 		cnss_pools = cnss_pools_default;
 		cnss_prealloc_pool_size = ARRAY_SIZE(cnss_pools_default);
 	}
+
+	pr_info("cnss_prealloc: assign cnss pool for device id 0x%lx with force_prealloc:%s\n",
+		device_id, cnss_force_prealloc_pool ? "enabled":"disabled");
 }
 
 void cnss_initialize_prealloc_pool(unsigned long device_id)
