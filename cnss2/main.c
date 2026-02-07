@@ -761,6 +761,9 @@ bool cnss_get_fw_cap(struct device *dev, enum cnss_fw_caps fw_cap)
 		is_supported = !!(plat_priv->fw_caps &
 				  QMI_WLFW_BT_DUMP_OVER_WLAN_SUPPORT_V01);
 		break;
+	case CNSS_FW_CAP_DIRECT_REFILL_SUPPORT:
+		is_supported = false;
+		break;
 	default:
 		cnss_pr_err("Invalid FW Capability: 0x%x\n", fw_cap);
 	}
