@@ -7066,17 +7066,6 @@ static void cnss_get_pm_domain_info(struct cnss_plat_data *plat_priv)
 	cnss_pr_dbg("use-pm-domain is %d\n", plat_priv->use_pm_domain);
 }
 
-static void cnss_get_wlaon_pwr_ctrl_info(struct cnss_plat_data *plat_priv)
-{
-	struct device *dev = &plat_priv->plat_dev->dev;
-
-	plat_priv->set_wlaon_pwr_ctrl =
-		of_property_read_bool(dev->of_node, "qcom,set-wlaon-pwr-ctrl");
-
-	cnss_pr_dbg("set_wlaon_pwr_ctrl is %d\n",
-		    plat_priv->set_wlaon_pwr_ctrl);
-}
-
 static bool cnss_use_fw_path_with_prefix(struct cnss_plat_data *plat_priv)
 {
 	return (of_property_read_bool(plat_priv->plat_dev->dev.of_node,
@@ -7790,7 +7779,6 @@ static int cnss_probe(struct platform_device *plat_dev)
 	cnss_enable_direct_cx_pmic_pbs(plat_priv);
 	cnss_get_nvmem_cells(plat_priv);
 	cnss_get_pm_domain_info(plat_priv);
-	cnss_get_wlaon_pwr_ctrl_info(plat_priv);
 	cnss_power_misc_params_init(plat_priv);
 	cnss_get_tcs_info(plat_priv);
 	cnss_get_cpr_info(plat_priv);
