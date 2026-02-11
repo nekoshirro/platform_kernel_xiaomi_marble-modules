@@ -47,7 +47,7 @@ MODULE_DESCRIPTION("CNSS prealloc driver");
  */
 
 #define CNSS_STACK_TRACE_DEPTH 16
-#define CNSS_SYMBOL_NAME_LEN 128
+#define CNSS_SYMBOL_NAME_LEN KSYM_SYMBOL_LEN
 
 struct cnss_stack_entry {
 	char symbol[CNSS_SYMBOL_NAME_LEN];
