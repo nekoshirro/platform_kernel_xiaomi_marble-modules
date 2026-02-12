@@ -6,6 +6,7 @@ targets = [
     "chora",
     "gen3auto",
     "hamoa",
+    "hamoa_la",
     "lahaina",
     "bengal",
     "malabar",
@@ -67,6 +68,7 @@ vm_target_bases = [
     "sun",
     "canoe",
     "hamoa",
+    "hamoa_la",
 ]
 
 vm_targets = ["{}-{}".format(t, vt) for t in vm_target_bases for vt in vm_types]
