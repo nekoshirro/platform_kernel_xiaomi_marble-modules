@@ -737,7 +737,7 @@ struct cnss_plat_data {
 	struct mbox_client mbox_client_data;
 	struct mbox_chan *mbox_chan;
 	struct qmp *qmp;
-	const char *vreg_ol_cpr, *vreg_ipa;
+	const char *vreg_ol_cpr, *vreg_ipa, *cx_reg_name;
 	const char **pdc_init_table, **vreg_pdc_map, **pmu_vreg_map;
 	int pdc_init_table_len, vreg_pdc_map_len, pmu_vreg_map_len;
 	const char **pdc_mode_vote_table;
