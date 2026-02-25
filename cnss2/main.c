@@ -3009,8 +3009,10 @@ static int cnss_set_cxpc_pdc(struct cnss_plat_data *plat_priv,
 			     plat_priv->device_id, arg);
 
 		snprintf(pdc_mode, CNSS_MBOX_MSG_MAX_LEN,
-			 "{class: wlan_pdc, ss: bb, res: s1j1.e, enable: %d, vlvl: %d}",
-			 enable_collapse, RAIL_VOLTAGE_LEVEL_RET);
+			 "{class: wlan_pdc, ss: bb, res: %s.e, enable: %d, vlvl: %d}",
+			 plat_priv->cx_reg_name, enable_collapse,
+			 RAIL_VOLTAGE_LEVEL_RET);
+		cnss_pr_vdbg("PDC command: %s\n", pdc_mode);
 		ret = cnss_aop_send_msg(plat_priv, pdc_mode);
 		if (ret < 0) {
 			cnss_pr_err("Failed to send PDC mode message: %d\n", ret);
@@ -3129,8 +3131,9 @@ static int cnss_set_cx_voltage_corner_pdc(struct cnss_plat_data *plat_priv,
 			     cnss_get_cx_voltage_corner(vc), arg);
 
 		snprintf(pdc_voltage, CNSS_MBOX_MSG_MAX_LEN,
-			 "{class: wlan_pdc, ss: bb, res: s1j1.v, upval: %d, vlvl: %d}",
-			 arg, voltage_level);
+			 "{class: wlan_pdc, ss: bb, res: %s.v, upval: %d, vlvl: %d}",
+			 plat_priv->cx_reg_name, arg, voltage_level);
+		cnss_pr_vdbg("PDC command: %s\n", pdc_voltage);
 		ret = cnss_aop_send_msg(plat_priv, pdc_voltage);
 		if (ret < 0) {
 			cnss_pr_err("Failed to send PDC mode message: %d\n", ret);
