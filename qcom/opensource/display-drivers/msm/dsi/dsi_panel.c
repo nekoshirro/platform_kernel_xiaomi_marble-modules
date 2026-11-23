@@ -5134,6 +5134,8 @@ int dsi_panel_post_enable(struct dsi_panel *panel)
 		       panel->name, rc);
 		goto error;
 	}
+
+	dsi_panel_fps_gamma(panel);
 error:
 	mutex_unlock(&panel->panel_lock);
 	return rc;
