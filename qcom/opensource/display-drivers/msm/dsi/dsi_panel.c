@@ -654,10 +654,17 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 
 	if (panel->bl_sync_threshold &&
 	    (bl_lvl > panel->bl_sync_threshold) != panel->bl_sync) {
-		panel->bl_sync = !panel->bl_sync;
-		dsi_panel_tx_cmd_set(panel, panel->bl_sync ?
+		bool next_bl_sync = !panel->bl_sync;
+
+		rc = dsi_panel_tx_cmd_set(panel, next_bl_sync ?
 				DSI_CMD_SET_MI_BL_SYNC_ON :
 				DSI_CMD_SET_MI_BL_SYNC_OFF);
+		if (rc) {
+			DSI_ERR("[%s] failed to send bl_sync %s cmds, rc=%d\n",
+				panel->name, next_bl_sync ? "on" : "off", rc);
+			goto exit;
+		}
+		panel->bl_sync = next_bl_sync;
 	}
 
 	if (panel->bl_config.bl_inverted_dbv)
