@@ -559,7 +559,7 @@ struct dma_fence *msm_dma_resv_get_excl(struct drm_plane_state *new_plane_state,
 {
 	enum dma_resv_usage usage;
 	struct dma_fence *fence;
-	struct dma_fence *new;
+	struct dma_fence *new = NULL;
 	int ret;
 
 	if (!msm_obj)
@@ -576,7 +576,7 @@ struct dma_fence *msm_dma_resv_get_excl(struct drm_plane_state *new_plane_state,
 		struct dma_fence_chain *chain = dma_fence_chain_alloc();
 
 		if (!chain) {
-			ret = -ENOMEM;
+			dma_fence_put(new);
 			goto error;
 		}
 
@@ -585,6 +585,8 @@ struct dma_fence *msm_dma_resv_get_excl(struct drm_plane_state *new_plane_state,
 	} else if (new) {
 		fence = new;
 	}
+
+	return fence;
 
 error:
 	dma_fence_put(fence);
