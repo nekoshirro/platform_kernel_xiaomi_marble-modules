@@ -5212,6 +5212,18 @@ int dsi_panel_disable(struct dsi_panel *panel)
 	panel->panel_initialized = false;
 	panel->power_mode = SDE_MODE_DPMS_OFF;
 
+	panel->bl_config.bl_scale = MAX_BL_SCALE_LEVEL;
+	panel->bl_config.bl_scale_sv = MAX_SV_BL_SCALE_LEVEL;
+	panel->bl_config.dimming_min_bl = 0;
+	panel->bl_config.dimming_bl_lut = NULL;
+	if (!panel->disable_dimming_bl) {
+		panel->bl_config.dimming_status = DIMMING_ENABLE;
+		panel->bl_config.user_disable_notification = false;
+	} else {
+		panel->bl_config.dimming_status = 0;
+		panel->bl_config.user_disable_notification = true;
+	}
+
 	mutex_unlock(&panel->panel_lock);
 	return rc;
 }

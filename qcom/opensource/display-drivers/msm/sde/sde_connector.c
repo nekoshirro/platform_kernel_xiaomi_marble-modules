@@ -774,6 +774,9 @@ static int _sde_connector_update_dimming_bl_lut(struct sde_connector *c_conn,
 		return -EINVAL;
 	}
 
+	if (dsi_display->panel->disable_dimming_bl)
+		return 0;
+
 	is_dirty = msm_property_is_dirty(&c_conn->property_info,
 			&c_state->property_state,
 			CONNECTOR_PROP_DIMMING_BL_LUT);
@@ -810,6 +813,9 @@ static int _sde_connector_update_dimming_ctrl(struct sde_connector *c_conn,
 			((dsi_display) ? dsi_display->panel : NULL));
 		return -EINVAL;
 	}
+
+	if (dsi_display->panel->disable_dimming_bl)
+		return 0;
 
 	bl_config = &dsi_display->panel->bl_config;
 	prev = (bool)(bl_config->dimming_status & DIMMING_ENABLE);
@@ -848,6 +854,9 @@ static int _sde_connector_update_dimming_min_bl(struct sde_connector *c_conn,
 			((dsi_display) ? dsi_display->panel : NULL));
 		return -EINVAL;
 	}
+
+	if (dsi_display->panel->disable_dimming_bl)
+		return 0;
 
 	bl_config = &dsi_display->panel->bl_config;
 	tmp = (uint32_t)val;
@@ -1206,6 +1215,13 @@ void sde_connector_helper_bridge_disable(struct drm_connector *connector)
 	}
 
 	c_conn->allow_bl_update = false;
+
+	if (!poms_pending) {
+		c_conn->bl_scale_dirty = false;
+		c_conn->bl_scale = MAX_BL_SCALE_LEVEL;
+		c_conn->bl_scale_sv = MAX_SV_BL_SCALE_LEVEL;
+		c_conn->unset_bl_level = 0;
+	}
 }
 
 void sde_connector_helper_bridge_post_disable(struct drm_connector *connector)
@@ -3265,7 +3281,8 @@ static int _sde_connector_install_properties(struct drm_device *dev,
 
 	if (connector_type == DRM_MODE_CONNECTOR_DSI) {
 		dsi_display = (struct dsi_display *)(display);
-		if (dsi_display && dsi_display->panel) {
+		if (dsi_display && dsi_display->panel &&
+				!dsi_display->panel->disable_dimming_bl) {
 			msm_property_install_blob(&c_conn->property_info,
 				"dimming_bl_lut", DRM_MODE_PROP_BLOB,
 				CONNECTOR_PROP_DIMMING_BL_LUT);
