@@ -1804,7 +1804,7 @@ int wcd_mbhc_start(struct wcd_mbhc *mbhc, struct wcd_mbhc_config *mbhc_cfg)
 		if (rc) {
 			dev_err(card->dev, "%s: wcd mbhc initialize failed\n",
 				__func__);
-			goto err;
+			goto err_unreg_ucsi;
 		}
 	} else {
 		if (!mbhc->mbhc_fw || !mbhc->mbhc_cal)
@@ -1823,6 +1823,9 @@ int wcd_mbhc_start(struct wcd_mbhc *mbhc, struct wcd_mbhc_config *mbhc_cfg)
 #endif
 
 	return rc;
+err_unreg_ucsi:
+	if (!mbhc_cfg->enable_usbc_analog)
+		unregister_ucsi_glink_notifier(&mbhc->fsa_nb);
 err:
 	dev_dbg(mbhc->component->dev, "%s: leave %d\n", __func__, rc);
 	return rc;
