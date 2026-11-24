@@ -1856,8 +1856,13 @@ void wcd_mbhc_stop(struct wcd_mbhc *mbhc)
 	}
 
 #if IS_ENABLED(CONFIG_QCOM_FSA4480_I2C)
-	if (mbhc->mbhc_cfg->enable_usbc_analog)
+	if (mbhc->mbhc_cfg && mbhc->mbhc_cfg->enable_usbc_analog)
 		fsa4480_unreg_notifier(&mbhc->fsa_nb, mbhc->fsa_np);
+	else if (mbhc->mbhc_cfg)
+		unregister_ucsi_glink_notifier(&mbhc->fsa_nb);
+#else
+	if (mbhc->mbhc_cfg && !mbhc->mbhc_cfg->enable_usbc_analog)
+		unregister_ucsi_glink_notifier(&mbhc->fsa_nb);
 #endif
 
 	pr_debug("%s: leave\n", __func__);
